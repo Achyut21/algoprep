@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Summer Study Exam",
-  description: "DSA milestone quizzes",
+  title: "AlgoPrep",
+  description: "Milestone quizzes for Data Structures & Algorithms",
 };
 
 export default function RootLayout({

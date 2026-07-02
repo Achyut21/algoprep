@@ -57,7 +57,7 @@ export default async function HomePage() {
       <main className="mx-auto flex min-h-screen w-full max-w-md flex-col justify-center gap-6 p-6">
         <FadeIn className="text-center">
           <h1 className="font-heading text-3xl font-semibold">
-            Summer Study Exam
+            AlgoPrep
           </h1>
           <p className="mt-2 text-muted-foreground">
             Who&apos;s taking the quiz today?
@@ -91,7 +91,7 @@ export default async function HomePage() {
         <header className="flex items-center justify-between">
           <div>
             <h1 className="font-heading text-3xl font-semibold">
-              Summer Study Exam
+              AlgoPrep
             </h1>
             <p className="mt-1 text-muted-foreground">
               Ready when you are, {profile.name}.
