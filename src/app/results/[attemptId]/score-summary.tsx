@@ -114,13 +114,12 @@ export function ScoreSummary({
             ))}
           </div>
           <div className="flex justify-center gap-2 font-mono">
-            {adminViewer && (
-              <Button asChild variant="outline">
-                <Link href="/admin">← admin</Link>
-              </Button>
-            )}
             <Button asChild variant="outline">
-              <Link href="/">← home</Link>
+              {adminViewer ? (
+                <Link href="/admin">← admin</Link>
+              ) : (
+                <Link href="/">← home</Link>
+              )}
             </Button>
             <Button asChild>
               <Link href={`/quiz/${quizSlug}`}>retry ↺</Link>

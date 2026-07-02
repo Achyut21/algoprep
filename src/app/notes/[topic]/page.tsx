@@ -50,16 +50,13 @@ export default async function NotesPage({
           cat notes/{topic}.md
           <span className="cursor-blink text-primary">▌</span>
         </h1>
-        <span className="flex items-center gap-1">
-          {adminViewer && (
-            <Button asChild variant="ghost" className="font-mono text-xs">
-              <Link href="/admin">← admin</Link>
-            </Button>
-          )}
-          <Button asChild variant="ghost" className="font-mono text-xs">
+        <Button asChild variant="ghost" className="font-mono text-xs">
+          {adminViewer ? (
+            <Link href="/admin">← admin</Link>
+          ) : (
             <Link href="/">← home</Link>
-          </Button>
-        </span>
+          )}
+        </Button>
       </header>
 
       <Content />
