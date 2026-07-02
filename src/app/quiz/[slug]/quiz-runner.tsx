@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatePresence, motion } from "motion/react";
 import { useState, useTransition } from "react";
 import { submitAttempt } from "@/app/actions";
 import { Badge } from "@/components/ui/badge";
@@ -20,6 +21,12 @@ import { cn } from "@/lib/utils";
 
 const LETTERS = ["A", "B", "C", "D"];
 
+const slideVariants = {
+  enter: (direction: number) => ({ x: direction * 48, opacity: 0 }),
+  center: { x: 0, opacity: 1 },
+  exit: (direction: number) => ({ x: direction * -48, opacity: 0 }),
+};
+
 export function QuizRunner({
   quizSlug,
   quizTitle,
@@ -34,12 +41,16 @@ export function QuizRunner({
   const [answers, setAnswers] = useState<(number | null)[]>(
     Array(questions.length).fill(null)
   );
-  const [current, setCurrent] = useState(0);
+  const [[current, direction], setNav] = useState<[number, number]>([0, 0]);
   const [isPending, startTransition] = useTransition();
 
   const question = questions[current];
   const answered = answers.filter((a) => a !== null).length;
   const unanswered = questions.length - answered;
+
+  function goTo(index: number) {
+    setNav(([c]) => [index, index > c ? 1 : -1]);
+  }
 
   function choose(optionIndex: number) {
     setAnswers((prev) =>
@@ -61,7 +72,12 @@ export function QuizRunner({
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-2xl flex-col gap-6 p-6">
-      <header className="space-y-3">
+      <motion.header
+        className="space-y-3"
+        initial={{ opacity: 0, y: -12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, ease: "easeOut" }}
+      >
         <div className="flex items-center justify-between">
           <h1 className="font-heading text-xl font-semibold">{quizTitle}</h1>
           <span className="text-sm text-muted-foreground">{playerName}</span>
@@ -72,52 +88,69 @@ export function QuizRunner({
             {answered}/{questions.length} answered
           </span>
         </div>
-      </header>
+      </motion.header>
 
-      <Card className="flex-1">
+      <Card className="flex-1 overflow-hidden">
         <CardHeader className="flex flex-row items-center justify-between">
           <Badge variant="secondary">{question.topic}</Badge>
           <span className="text-sm text-muted-foreground">
             Question {current + 1} of {questions.length}
           </span>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-base font-medium">{question.prompt}</p>
-          {question.code && (
-            <pre className="overflow-x-auto rounded-lg bg-muted p-4 font-mono text-sm">
-              <code>{question.code}</code>
-            </pre>
-          )}
-          <div className="grid gap-2">
-            {question.options.map((option, i) => {
-              const selected = answers[current] === i;
-              return (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={() => choose(i)}
-                  className={cn(
-                    "flex items-start gap-3 rounded-lg border p-3 text-left text-sm transition-colors",
-                    selected
-                      ? "border-primary bg-primary/5 ring-1 ring-primary"
-                      : "border-border hover:bg-muted"
-                  )}
-                >
-                  <span
-                    className={cn(
-                      "flex size-6 shrink-0 items-center justify-center rounded-full border text-xs font-semibold",
-                      selected
-                        ? "border-primary bg-primary text-primary-foreground"
-                        : "border-border"
-                    )}
-                  >
-                    {LETTERS[i]}
-                  </span>
-                  <span className="pt-0.5">{option}</span>
-                </button>
-              );
-            })}
-          </div>
+        <CardContent>
+          <AnimatePresence mode="wait" custom={direction} initial={false}>
+            <motion.div
+              key={current}
+              className="space-y-4"
+              custom={direction}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ duration: 0.18, ease: "easeOut" }}
+            >
+              <p className="text-base font-medium">{question.prompt}</p>
+              {question.code && (
+                <pre className="overflow-x-auto rounded-lg bg-muted p-4 font-mono text-sm">
+                  <code>{question.code}</code>
+                </pre>
+              )}
+              <div className="grid gap-2">
+                {question.options.map((option, i) => {
+                  const selected = answers[current] === i;
+                  return (
+                    <motion.button
+                      key={i}
+                      type="button"
+                      onClick={() => choose(i)}
+                      whileHover={{ scale: 1.01 }}
+                      whileTap={{ scale: 0.98 }}
+                      className={cn(
+                        "flex items-start gap-3 rounded-lg border p-3 text-left text-sm transition-colors",
+                        selected
+                          ? "border-primary bg-primary/5 ring-1 ring-primary"
+                          : "border-border hover:bg-muted"
+                      )}
+                    >
+                      <motion.span
+                        animate={selected ? { scale: [1, 1.25, 1] } : {}}
+                        transition={{ duration: 0.25 }}
+                        className={cn(
+                          "flex size-6 shrink-0 items-center justify-center rounded-full border text-xs font-semibold",
+                          selected
+                            ? "border-primary bg-primary text-primary-foreground"
+                            : "border-border"
+                        )}
+                      >
+                        {LETTERS[i]}
+                      </motion.span>
+                      <span className="pt-0.5">{option}</span>
+                    </motion.button>
+                  );
+                })}
+              </div>
+            </motion.div>
+          </AnimatePresence>
         </CardContent>
       </Card>
 
@@ -125,12 +158,12 @@ export function QuizRunner({
         <Button
           variant="outline"
           disabled={current === 0}
-          onClick={() => setCurrent((c) => c - 1)}
+          onClick={() => goTo(current - 1)}
         >
           Previous
         </Button>
         {current < questions.length - 1 ? (
-          <Button onClick={() => setCurrent((c) => c + 1)}>Next</Button>
+          <Button onClick={() => goTo(current + 1)}>Next</Button>
         ) : (
           <Dialog>
             <DialogTrigger asChild>
@@ -159,10 +192,11 @@ export function QuizRunner({
 
       <nav className="grid grid-cols-10 gap-1.5">
         {questions.map((q, i) => (
-          <button
+          <motion.button
             key={q.id}
             type="button"
-            onClick={() => setCurrent(i)}
+            onClick={() => goTo(i)}
+            whileTap={{ scale: 0.9 }}
             aria-label={`Go to question ${i + 1}`}
             className={cn(
               "flex h-8 items-center justify-center rounded-md border text-xs font-medium transition-colors",
@@ -173,7 +207,7 @@ export function QuizRunner({
             )}
           >
             {i + 1}
-          </button>
+          </motion.button>
         ))}
       </nav>
     </main>

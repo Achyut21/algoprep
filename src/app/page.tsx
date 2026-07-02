@@ -5,6 +5,7 @@ import {
   selectProfile,
   switchProfile,
 } from "@/app/actions";
+import { FadeIn } from "@/components/fade-in";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -59,16 +60,16 @@ export default async function HomePage() {
   if (!profile) {
     return (
       <main className="mx-auto flex min-h-screen w-full max-w-md flex-col justify-center gap-6 p-6">
-        <div className="text-center">
+        <FadeIn className="text-center">
           <h1 className="font-heading text-3xl font-semibold">
             Summer Study Exam
           </h1>
           <p className="mt-2 text-muted-foreground">
             Who&apos;s taking the quiz today?
           </p>
-        </div>
+        </FadeIn>
         {allProfiles.length > 0 && (
-          <div className="flex flex-wrap justify-center gap-2">
+          <FadeIn className="flex flex-wrap justify-center gap-2" delay={0.1}>
             {allProfiles.map((p) => (
               <form key={p.id} action={selectProfile.bind(null, p.id)}>
                 <Button variant="outline" size="lg">
@@ -76,38 +77,42 @@ export default async function HomePage() {
                 </Button>
               </form>
             ))}
-          </div>
+          </FadeIn>
         )}
-        <form action={createOrPickProfile} className="flex gap-2">
-          <Input
-            name="name"
-            placeholder="Or type your name…"
-            maxLength={30}
-            required
-          />
-          <Button type="submit">Let&apos;s go</Button>
-        </form>
+        <FadeIn delay={0.2}>
+          <form action={createOrPickProfile} className="flex gap-2">
+            <Input
+              name="name"
+              placeholder="Or type your name…"
+              maxLength={30}
+              required
+            />
+            <Button type="submit">Let&apos;s go</Button>
+          </form>
+        </FadeIn>
       </main>
     );
   }
 
   return (
     <main className="mx-auto w-full max-w-3xl space-y-8 p-6">
-      <header className="flex items-center justify-between">
-        <div>
-          <h1 className="font-heading text-3xl font-semibold">
-            Summer Study Exam
-          </h1>
-          <p className="mt-1 text-muted-foreground">
-            Ready when you are, {profile.name}.
-          </p>
-        </div>
-        <form action={switchProfile}>
-          <Button variant="ghost">Switch player</Button>
-        </form>
-      </header>
+      <FadeIn>
+        <header className="flex items-center justify-between">
+          <div>
+            <h1 className="font-heading text-3xl font-semibold">
+              Summer Study Exam
+            </h1>
+            <p className="mt-1 text-muted-foreground">
+              Ready when you are, {profile.name}.
+            </p>
+          </div>
+          <form action={switchProfile}>
+            <Button variant="ghost">Switch player</Button>
+          </form>
+        </header>
+      </FadeIn>
 
-      <section className="space-y-4">
+      <FadeIn className="space-y-4" delay={0.1}>
         <h2 className="font-heading text-xl font-medium">Quizzes</h2>
         {quizzes.map((quiz) => {
           const stats = bestScore(allAttempts, profile.id, quiz.slug);
@@ -145,9 +150,9 @@ export default async function HomePage() {
             </Card>
           );
         })}
-      </section>
+      </FadeIn>
 
-      <section className="space-y-4">
+      <FadeIn className="space-y-4" delay={0.2}>
         <h2 className="font-heading text-xl font-medium">Leaderboard</h2>
         {quizzes.map((quiz) => {
           const rows = allProfiles
@@ -192,7 +197,7 @@ export default async function HomePage() {
             </Card>
           );
         })}
-      </section>
+      </FadeIn>
     </main>
   );
 }
