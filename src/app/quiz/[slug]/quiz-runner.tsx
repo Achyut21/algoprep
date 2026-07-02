@@ -1,6 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { submitAttempt } from "@/app/actions";
 import { GradingOverlay } from "./grading-overlay";
@@ -163,8 +164,11 @@ export function QuizRunner({
             <span className="text-primary">$ </span>
             {quizSlug}
           </h1>
-          <span className="text-xs text-muted-foreground">
+          <span className="flex items-center gap-2 text-xs text-muted-foreground">
             {fmtElapsed(elapsed)} · {playerName.toLowerCase()}@algoprep
+            <Button asChild variant="ghost" size="sm" className="font-mono text-xs">
+              <Link href="/">exit ↩</Link>
+            </Button>
           </span>
         </div>
         <div className="flex items-center gap-3">

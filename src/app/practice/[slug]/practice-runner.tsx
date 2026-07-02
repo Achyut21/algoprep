@@ -103,8 +103,11 @@ export function PracticeRunner({
             <span className="text-primary">$ </span>
             {quizSlug} <span className="text-amber">--practice</span>
           </h1>
-          <span className="text-xs text-muted-foreground">
+          <span className="flex items-center gap-2 text-xs text-muted-foreground">
             {playerName.toLowerCase()}@algoprep
+            <Button asChild variant="ghost" size="sm" className="font-mono text-xs">
+              <Link href="/">← home</Link>
+            </Button>
           </span>
         </div>
         <div className="flex items-center gap-3">
