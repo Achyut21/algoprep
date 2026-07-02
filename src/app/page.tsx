@@ -29,6 +29,25 @@ function bestScore(attempts: Attempt[], profileId: number, quizSlug: string) {
   };
 }
 
+function Brand() {
+  return (
+    <h1 className="font-heading text-3xl font-bold tracking-tight">
+      <span className="text-primary">$ </span>
+      algoprep
+      <span className="cursor-blink text-primary">▌</span>
+    </h1>
+  );
+}
+
+function SectionHeading({ children }: { children: React.ReactNode }) {
+  return (
+    <h2 className="font-mono text-sm font-semibold tracking-widest text-muted-foreground uppercase">
+      <span className="text-primary"># </span>
+      {children}
+    </h2>
+  );
+}
+
 export default async function HomePage() {
   if (!process.env.DATABASE_URL) {
     return (
@@ -54,13 +73,13 @@ export default async function HomePage() {
 
   if (!profile) {
     return (
-      <main className="mx-auto flex min-h-screen w-full max-w-md flex-col justify-center gap-6 p-6">
+      <main className="mx-auto flex min-h-screen w-full max-w-md flex-col justify-center gap-8 p-6">
         <FadeIn className="text-center">
-          <h1 className="font-heading text-3xl font-semibold">
-            AlgoPrep
-          </h1>
-          <p className="mt-2 text-muted-foreground">
-            Who&apos;s taking the quiz today?
+          <div className="flex justify-center">
+            <Brand />
+          </div>
+          <p className="mt-3 font-mono text-sm text-muted-foreground">
+            <span className="text-primary">&gt;</span> select player to begin
           </p>
         </FadeIn>
         <FadeIn delay={0.1}>
@@ -73,9 +92,9 @@ export default async function HomePage() {
               }))}
             />
           ) : (
-            <p className="text-center text-sm text-muted-foreground">
-              No players yet. Add them with{" "}
-              <code className="rounded bg-muted px-1.5 py-0.5">
+            <p className="text-center font-mono text-sm text-muted-foreground">
+              no players yet — run{" "}
+              <code className="rounded bg-muted px-1.5 py-0.5 text-foreground">
                 pnpm seed &quot;Name One&quot; &quot;Name Two&quot;
               </code>
             </p>
@@ -86,54 +105,59 @@ export default async function HomePage() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-3xl space-y-8 p-6">
+    <main className="mx-auto w-full max-w-3xl space-y-10 p-6">
       <FadeIn>
         <header className="flex items-center justify-between">
           <div>
-            <h1 className="font-heading text-3xl font-semibold">
-              AlgoPrep
-            </h1>
-            <p className="mt-1 text-muted-foreground">
-              Ready when you are, {profile.name}.
+            <Brand />
+            <p className="mt-2 font-mono text-sm text-muted-foreground">
+              <span className="text-primary">&gt;</span> logged in as{" "}
+              <span className="text-foreground">{profile.name}</span>
             </p>
           </div>
           <form action={switchProfile}>
-            <Button variant="ghost">Switch player</Button>
+            <Button variant="ghost" className="font-mono text-xs">
+              switch player
+            </Button>
           </form>
         </header>
       </FadeIn>
 
       <FadeIn className="space-y-4" delay={0.1}>
-        <h2 className="font-heading text-xl font-medium">Quizzes</h2>
+        <SectionHeading>quizzes</SectionHeading>
         {quizzes.map((quiz) => {
           const stats = bestScore(allAttempts, profile.id, quiz.slug);
           return (
-            <Card key={quiz.slug}>
+            <Card key={quiz.slug} className="hover-glow">
               <CardHeader>
-                <CardTitle>{quiz.title}</CardTitle>
+                <CardTitle className="font-mono">{quiz.title}</CardTitle>
                 <CardDescription>{quiz.description}</CardDescription>
               </CardHeader>
               <CardContent className="flex flex-wrap items-center justify-between gap-4">
                 <div className="flex flex-wrap items-center gap-2">
                   {quiz.sections.map((section) => (
-                    <Badge key={section} variant="secondary">
+                    <Badge
+                      key={section}
+                      variant="secondary"
+                      className="font-mono text-[10px] tracking-wider uppercase"
+                    >
                       {section}
                     </Badge>
                   ))}
-                  <span className="text-sm text-muted-foreground">
-                    {quiz.questions.length} questions
+                  <span className="font-mono text-xs text-muted-foreground">
+                    {quiz.questions.length}q
                   </span>
                 </div>
                 <div className="flex items-center gap-4">
                   {stats && (
-                    <span className="text-sm text-muted-foreground">
-                      Best: {stats.best}/{stats.total} · {stats.tries}{" "}
-                      {stats.tries === 1 ? "attempt" : "attempts"}
+                    <span className="font-mono text-xs text-muted-foreground">
+                      best {stats.best}/{stats.total} · {stats.tries}{" "}
+                      {stats.tries === 1 ? "run" : "runs"}
                     </span>
                   )}
-                  <Button asChild>
+                  <Button asChild className="font-mono">
                     <Link href={`/quiz/${quiz.slug}`}>
-                      {stats ? "Try again" : "Start"}
+                      {stats ? "retry ↺" : "start →"}
                     </Link>
                   </Button>
                 </div>
@@ -144,7 +168,7 @@ export default async function HomePage() {
       </FadeIn>
 
       <FadeIn className="space-y-4" delay={0.2}>
-        <h2 className="font-heading text-xl font-medium">Leaderboard</h2>
+        <SectionHeading>leaderboard</SectionHeading>
         {quizzes.map((quiz) => {
           const rows = allProfiles
             .map((p) => ({
@@ -156,29 +180,39 @@ export default async function HomePage() {
           return (
             <Card key={quiz.slug}>
               <CardHeader>
-                <CardTitle className="text-base">{quiz.title}</CardTitle>
+                <CardTitle className="font-mono text-sm">
+                  {quiz.title}
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 {rows.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">
-                    Nobody has taken this one yet. Be the first!
+                  <p className="font-mono text-sm text-muted-foreground">
+                    no runs yet — be the first!
                   </p>
                 ) : (
-                  <ol className="space-y-2">
+                  <ol className="divide-y divide-border font-mono text-sm">
                     {rows.map((row, i) => (
                       <li
                         key={row.profile.id}
-                        className="flex items-center justify-between text-sm"
+                        className="flex items-center justify-between py-2"
                       >
-                        <span>
-                          {["🥇", "🥈", "🥉"][i] ?? `${i + 1}.`}{" "}
+                        <span
+                          className={
+                            i === 0 ? "text-primary text-glow" : undefined
+                          }
+                        >
+                          <span className="mr-3 text-muted-foreground/60">
+                            {String(i + 1).padStart(2, "0")}
+                          </span>
                           {row.profile.name}
-                          {row.profile.id === profile.id && " (you)"}
+                          {row.profile.id === profile.id && (
+                            <span className="text-muted-foreground"> ← you</span>
+                          )}
                         </span>
                         <span className="text-muted-foreground">
                           {row.stats!.best}/{row.stats!.total} ·{" "}
-                          {row.stats!.tries}{" "}
-                          {row.stats!.tries === 1 ? "attempt" : "attempts"}
+                          {row.stats!.tries}
+                          {row.stats!.tries === 1 ? " run" : " runs"}
                         </span>
                       </li>
                     ))}

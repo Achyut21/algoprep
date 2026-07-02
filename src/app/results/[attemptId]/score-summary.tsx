@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
+const CONFETTI_COLORS = ["#3dfc8e", "#ffd25e", "#7ee7c4", "#e6f0e8"];
+
 function verdict(pct: number) {
   if (pct >= 90) return "Outstanding! 🏆";
   if (pct >= 70) return "Great job! 🎉";
@@ -37,7 +39,12 @@ export function ScoreSummary({
     });
     if (pct >= 70) {
       import("canvas-confetti").then(({ default: confetti }) => {
-        confetti({ particleCount: 140, spread: 90, origin: { y: 0.3 } });
+        confetti({
+          particleCount: 140,
+          spread: 90,
+          origin: { y: 0.3 },
+          colors: CONFETTI_COLORS,
+        });
       });
     }
     return () => controls.stop();
@@ -51,9 +58,15 @@ export function ScoreSummary({
     >
       <Card>
         <CardHeader className="text-center">
-          <CardTitle className="font-heading text-2xl">
-            {name}, you scored{" "}
-            <span className="tabular-nums">{displayScore}</span>/{total}
+          <p className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
+            <span className="text-primary">$</span> ./grade --player{" "}
+            {name.toLowerCase()}
+          </p>
+          <CardTitle className="font-mono text-5xl font-bold">
+            <span className="text-primary text-glow tabular-nums">
+              {String(displayScore).padStart(2, "0")}
+            </span>
+            <span className="text-muted-foreground">/{total}</span>
           </CardTitle>
           <p className="text-muted-foreground">{verdict(pct)}</p>
         </CardHeader>
@@ -67,7 +80,9 @@ export function ScoreSummary({
                 transition={{ duration: 1.2, ease: "easeOut" }}
               />
             </div>
-            <span className="shrink-0 text-sm font-medium">{pct}%</span>
+            <span className="shrink-0 font-mono text-sm font-medium">
+              {pct}%
+            </span>
           </div>
           <div className="grid gap-3 sm:grid-cols-3">
             {byTopic.map(({ topic, correct, total: topicTotal }, i) => (
@@ -78,19 +93,22 @@ export function ScoreSummary({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: 0.3 + i * 0.12 }}
               >
-                <p className="text-sm text-muted-foreground">{topic}</p>
-                <p className="mt-1 font-heading text-lg font-semibold">
-                  {correct}/{topicTotal}
+                <p className="font-mono text-[10px] tracking-wider text-muted-foreground uppercase">
+                  {topic}
+                </p>
+                <p className="mt-1 font-mono text-lg font-semibold">
+                  {correct}
+                  <span className="text-muted-foreground">/{topicTotal}</span>
                 </p>
               </motion.div>
             ))}
           </div>
-          <div className="flex justify-center gap-2">
+          <div className="flex justify-center gap-2 font-mono">
             <Button asChild variant="outline">
-              <Link href="/">Home</Link>
+              <Link href="/">← home</Link>
             </Button>
             <Button asChild>
-              <Link href={`/quiz/${quizSlug}`}>Try again</Link>
+              <Link href={`/quiz/${quizSlug}`}>retry ↺</Link>
             </Button>
           </div>
         </CardContent>

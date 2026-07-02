@@ -1,5 +1,6 @@
 import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
+import { CodeBlock } from "@/components/code-block";
 import { FadeInOnScroll } from "@/components/fade-in";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -59,7 +60,9 @@ export default async function ResultsPage({
       />
 
       <section className="space-y-4">
-        <h2 className="font-heading text-xl font-medium">Review</h2>
+        <h2 className="font-mono text-sm font-semibold tracking-widest text-muted-foreground uppercase">
+          <span className="text-primary"># </span>review
+        </h2>
         {quiz.questions.map((question, index) => {
           const answer = answerByQuestion.get(question.id);
           const chosen = answer?.chosenIndex ?? null;
@@ -68,17 +71,35 @@ export default async function ResultsPage({
             <FadeInOnScroll key={question.id}>
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between">
-                  <span className="text-sm font-medium">
-                    {answer?.isCorrect ? "✅" : "❌"} Question {index + 1}
+                  <span className="flex items-center gap-2 font-mono text-xs">
+                    <span
+                      className={cn(
+                        "rounded-sm px-1.5 py-0.5 font-bold",
+                        answer?.isCorrect
+                          ? "bg-primary/15 text-primary"
+                          : "bg-destructive/15 text-destructive"
+                      )}
+                    >
+                      {answer?.isCorrect ? "PASS" : "FAIL"}
+                    </span>
+                    <span className="text-muted-foreground">
+                      Q{String(index + 1).padStart(2, "0")}
+                    </span>
                   </span>
-                  <Badge variant="secondary">{question.topic}</Badge>
+                  <Badge
+                    variant="secondary"
+                    className="font-mono text-[10px] tracking-wider uppercase"
+                  >
+                    {question.topic}
+                  </Badge>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <p className="font-medium">{question.prompt}</p>
                   {question.code && (
-                    <pre className="overflow-x-auto rounded-lg bg-muted p-4 font-mono text-sm">
-                      <code>{question.code}</code>
-                    </pre>
+                    <CodeBlock
+                      code={question.code}
+                      filename={`${question.id}.py`}
+                    />
                   )}
                   <div className="grid gap-2">
                     {question.options.map((option, i) => (
@@ -86,35 +107,38 @@ export default async function ResultsPage({
                         key={i}
                         className={cn(
                           "flex items-start gap-3 rounded-lg border p-3 text-sm",
-                          i === correct &&
-                            "border-green-600/50 bg-green-50 dark:bg-green-950/30",
+                          i === correct && "border-primary/50 bg-primary/10",
                           i === chosen &&
                             i !== correct &&
-                            "border-red-600/50 bg-red-50 dark:bg-red-950/30"
+                            "border-destructive/50 bg-destructive/10"
                         )}
                       >
-                        <span className="font-semibold">{LETTERS[i]}.</span>
+                        <span className="font-mono font-semibold">
+                          {LETTERS[i]}.
+                        </span>
                         <span>{option}</span>
                         {i === correct && (
-                          <span className="ml-auto shrink-0 text-xs font-medium text-green-700 dark:text-green-400">
-                            Correct answer
+                          <span className="ml-auto shrink-0 font-mono text-xs font-medium text-primary">
+                            ✓ correct
                           </span>
                         )}
                         {i === chosen && i !== correct && (
-                          <span className="ml-auto shrink-0 text-xs font-medium text-red-700 dark:text-red-400">
-                            Your pick
+                          <span className="ml-auto shrink-0 font-mono text-xs font-medium text-destructive">
+                            ✗ your pick
                           </span>
                         )}
                       </div>
                     ))}
                     {chosen === null && (
-                      <p className="text-sm text-muted-foreground">
-                        You didn&apos;t answer this one.
+                      <p className="font-mono text-sm text-muted-foreground">
+                        ∅ no answer given
                       </p>
                     )}
                   </div>
                   <div className="rounded-lg bg-muted/50 p-3 text-sm text-muted-foreground">
-                    <span className="font-medium text-foreground">Why: </span>
+                    <span className="font-mono font-medium text-primary">
+                      # why:{" "}
+                    </span>
                     {question.explanation}
                   </div>
                 </CardContent>

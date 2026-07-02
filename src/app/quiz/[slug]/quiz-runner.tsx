@@ -3,6 +3,7 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useState, useTransition } from "react";
 import { submitAttempt } from "@/app/actions";
+import { CodeBlock } from "@/components/code-block";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -29,12 +30,10 @@ const slideVariants = {
 
 export function QuizRunner({
   quizSlug,
-  quizTitle,
   playerName,
   questions,
 }: {
   quizSlug: string;
-  quizTitle: string;
   playerName: string;
   questions: ClientQuestion[];
 }) {
@@ -52,9 +51,9 @@ export function QuizRunner({
     setNav(([c]) => [index, index > c ? 1 : -1]);
   }
 
-  function choose(optionIndex: number) {
+  function choose(questionIndex: number, optionIndex: number) {
     setAnswers((prev) =>
-      prev.map((a, i) => (i === current ? optionIndex : a))
+      prev.map((a, i) => (i === questionIndex ? optionIndex : a))
     );
   }
 
@@ -78,23 +77,36 @@ export function QuizRunner({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, ease: "easeOut" }}
       >
-        <div className="flex items-center justify-between">
-          <h1 className="font-heading text-xl font-semibold">{quizTitle}</h1>
-          <span className="text-sm text-muted-foreground">{playerName}</span>
+        <div className="flex items-center justify-between font-mono">
+          <h1 className="text-lg font-bold">
+            <span className="text-primary">$ </span>
+            {quizSlug}
+          </h1>
+          <span className="text-xs text-muted-foreground">
+            {playerName.toLowerCase()}@algoprep
+          </span>
         </div>
         <div className="flex items-center gap-3">
           <Progress value={(answered / questions.length) * 100} />
-          <span className="shrink-0 text-sm text-muted-foreground">
-            {answered}/{questions.length} answered
+          <span className="shrink-0 font-mono text-xs text-muted-foreground">
+            [{String(answered).padStart(2, "0")}/{questions.length}]
           </span>
         </div>
       </motion.header>
 
       <Card className="flex-1 overflow-hidden">
         <CardHeader className="flex flex-row items-center justify-between">
-          <Badge variant="secondary">{question.topic}</Badge>
-          <span className="text-sm text-muted-foreground">
-            Question {current + 1} of {questions.length}
+          <Badge
+            variant="secondary"
+            className="font-mono text-[10px] tracking-wider uppercase"
+          >
+            {question.topic}
+          </Badge>
+          <span className="font-mono text-xs text-muted-foreground">
+            Q{String(current + 1).padStart(2, "0")}
+            <span className="text-muted-foreground/50">
+              /{questions.length}
+            </span>
           </span>
         </CardHeader>
         <CardContent>
@@ -111,9 +123,10 @@ export function QuizRunner({
             >
               <p className="text-base font-medium">{question.prompt}</p>
               {question.code && (
-                <pre className="overflow-x-auto rounded-lg bg-muted p-4 font-mono text-sm">
-                  <code>{question.code}</code>
-                </pre>
+                <CodeBlock
+                  code={question.code}
+                  filename={`${question.id}.py`}
+                />
               )}
               <div className="grid gap-2">
                 {question.options.map((option, i) => {
@@ -122,24 +135,24 @@ export function QuizRunner({
                     <motion.button
                       key={i}
                       type="button"
-                      onClick={() => choose(i)}
+                      onClick={() => choose(current, i)}
                       whileHover={{ scale: 1.01 }}
                       whileTap={{ scale: 0.98 }}
                       className={cn(
-                        "flex items-start gap-3 rounded-lg border p-3 text-left text-sm transition-colors",
+                        "flex items-start gap-3 rounded-lg border p-3 text-left text-sm transition-all",
                         selected
-                          ? "border-primary bg-primary/5 ring-1 ring-primary"
-                          : "border-border hover:bg-muted"
+                          ? "border-primary bg-primary/5 box-glow"
+                          : "border-border hover:border-primary/40 hover:bg-muted"
                       )}
                     >
                       <motion.span
                         animate={selected ? { scale: [1, 1.25, 1] } : {}}
                         transition={{ duration: 0.25 }}
                         className={cn(
-                          "flex size-6 shrink-0 items-center justify-center rounded-full border text-xs font-semibold",
+                          "flex size-6 shrink-0 items-center justify-center rounded-md border font-mono text-xs font-bold",
                           selected
                             ? "border-primary bg-primary text-primary-foreground"
-                            : "border-border"
+                            : "border-border text-muted-foreground"
                         )}
                       >
                         {LETTERS[i]}
@@ -154,24 +167,26 @@ export function QuizRunner({
         </CardContent>
       </Card>
 
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between font-mono">
         <Button
           variant="outline"
           disabled={current === 0}
           onClick={() => goTo(current - 1)}
         >
-          Previous
+          ← prev
         </Button>
         {current < questions.length - 1 ? (
-          <Button onClick={() => goTo(current + 1)}>Next</Button>
+          <Button onClick={() => goTo(current + 1)}>next →</Button>
         ) : (
           <Dialog>
             <DialogTrigger asChild>
-              <Button>Submit quiz</Button>
+              <Button className="text-glow">submit ⏎</Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Submit your answers?</DialogTitle>
+                <DialogTitle className="font-mono">
+                  Submit your answers?
+                </DialogTitle>
                 <DialogDescription>
                   {unanswered > 0
                     ? `You still have ${unanswered} unanswered ${
@@ -181,8 +196,12 @@ export function QuizRunner({
                 </DialogDescription>
               </DialogHeader>
               <DialogFooter showCloseButton>
-                <Button onClick={submit} disabled={isPending}>
-                  {isPending ? "Grading…" : "Submit"}
+                <Button
+                  onClick={submit}
+                  disabled={isPending}
+                  className="font-mono"
+                >
+                  {isPending ? "grading…" : "submit"}
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -199,10 +218,10 @@ export function QuizRunner({
             whileTap={{ scale: 0.9 }}
             aria-label={`Go to question ${i + 1}`}
             className={cn(
-              "flex h-8 items-center justify-center rounded-md border text-xs font-medium transition-colors",
+              "flex h-8 items-center justify-center rounded-md border font-mono text-xs transition-colors",
               i === current && "ring-2 ring-primary",
               answers[i] !== null
-                ? "border-primary/50 bg-primary/10 text-primary"
+                ? "border-primary/50 bg-primary/15 text-primary"
                 : "border-border text-muted-foreground hover:bg-muted"
             )}
           >

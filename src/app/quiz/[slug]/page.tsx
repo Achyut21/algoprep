@@ -30,7 +30,6 @@ export default async function QuizPage({
   return (
     <QuizRunner
       quizSlug={quiz.slug}
-      quizTitle={quiz.title}
       playerName={profile.name}
       questions={questions}
     />

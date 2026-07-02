@@ -50,9 +50,10 @@ export function ProfilePicker({ profiles }: { profiles: PickerProfile[] }) {
             key={profile.id}
             variant="outline"
             size="lg"
+            className="hover-glow font-mono hover:border-primary/50"
             onClick={() => open(profile)}
           >
-            {profile.name}
+            <span className="text-primary">&gt;</span> {profile.name}
           </Button>
         ))}
       </div>
@@ -63,7 +64,9 @@ export function ProfilePicker({ profiles }: { profiles: PickerProfile[] }) {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Hi {selected?.name}!</DialogTitle>
+            <DialogTitle className="font-mono">
+              Hi {selected?.name}!
+            </DialogTitle>
             <DialogDescription>
               {selected?.hasPin
                 ? "Enter your 4-digit PIN."
@@ -87,7 +90,7 @@ export function ProfilePicker({ profiles }: { profiles: PickerProfile[] }) {
                 setPin(e.target.value.replace(/\D/g, ""));
                 setError(null);
               }}
-              className="text-center text-lg tracking-[0.5em]"
+              className="text-center font-mono text-lg tracking-[0.5em]"
               autoFocus
             />
             {error && <p className="text-sm text-destructive">{error}</p>}
