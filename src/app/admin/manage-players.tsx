@@ -4,13 +4,14 @@ import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { addPlayer, resetPin } from "./actions";
+import { addPlayer, deletePlayer, resetPin } from "./actions";
 
 type ManagedProfile = { id: number; name: string; hasPin: boolean };
 
 export function ManagePlayers({ profiles }: { profiles: ManagedProfile[] }) {
   const [name, setName] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [confirmingId, setConfirmingId] = useState<number | null>(null);
   const [isPending, startTransition] = useTransition();
 
   function add(e: React.FormEvent) {
@@ -19,6 +20,13 @@ export function ManagePlayers({ profiles }: { profiles: ManagedProfile[] }) {
       const result = await addPlayer({ name });
       if (result.error) setError(result.error);
       else setName("");
+    });
+  }
+
+  function remove(profileId: number) {
+    startTransition(async () => {
+      await deletePlayer(profileId);
+      setConfirmingId(null);
     });
   }
 
@@ -50,24 +58,59 @@ export function ManagePlayers({ profiles }: { profiles: ManagedProfile[] }) {
             {profiles.map((profile) => (
               <li
                 key={profile.id}
-                className="flex items-center justify-between py-2"
+                className="flex items-center justify-between gap-3 py-2"
               >
-                <span>
+                <span className="min-w-0 truncate">
                   {profile.name}
                   <span className="ml-3 text-xs text-muted-foreground">
                     {profile.hasPin ? "pin set" : "no pin yet"}
                   </span>
                 </span>
-                {profile.hasPin && (
-                  <form action={resetPin.bind(null, profile.id)}>
+                {confirmingId === profile.id ? (
+                  <span className="flex shrink-0 items-center gap-2">
+                    <span className="text-xs text-destructive">
+                      deletes all their runs too!
+                    </span>
                     <Button
-                      variant="outline"
+                      variant="destructive"
                       size="sm"
                       className="font-mono text-xs"
+                      disabled={isPending}
+                      onClick={() => remove(profile.id)}
                     >
-                      reset pin
+                      {isPending ? "deleting…" : "really delete"}
                     </Button>
-                  </form>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="font-mono text-xs"
+                      onClick={() => setConfirmingId(null)}
+                    >
+                      cancel
+                    </Button>
+                  </span>
+                ) : (
+                  <span className="flex shrink-0 items-center gap-2">
+                    {profile.hasPin && (
+                      <form action={resetPin.bind(null, profile.id)}>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="font-mono text-xs"
+                        >
+                          reset pin
+                        </Button>
+                      </form>
+                    )}
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      className="font-mono text-xs"
+                      onClick={() => setConfirmingId(profile.id)}
+                    >
+                      delete
+                    </Button>
+                  </span>
                 )}
               </li>
             ))}

@@ -1,11 +1,11 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { z } from "zod";
 import { getDb } from "@/db";
-import { profiles, quizLocks } from "@/db/schema";
+import { attemptAnswers, attempts, profiles, quizLocks } from "@/db/schema";
 import { ADMIN_COOKIE, adminToken, hashAdminPassword, isAdmin } from "@/lib/admin";
 
 const THIRTY_DAYS = 60 * 60 * 24 * 30;
@@ -61,6 +61,26 @@ export async function resetPin(profileId: number) {
     .set({ pinHash: null })
     .where(eq(profiles.id, profileId));
   revalidatePath("/admin");
+}
+
+export async function deletePlayer(profileId: number) {
+  if (!(await isAdmin())) return;
+  const db = getDb();
+  const own = await db.query.attempts.findMany({
+    where: eq(attempts.profileId, profileId),
+  });
+  if (own.length > 0) {
+    await db.delete(attemptAnswers).where(
+      inArray(
+        attemptAnswers.attemptId,
+        own.map((a) => a.id)
+      )
+    );
+    await db.delete(attempts).where(eq(attempts.profileId, profileId));
+  }
+  await db.delete(profiles).where(eq(profiles.id, profileId));
+  revalidatePath("/admin");
+  revalidatePath("/");
 }
 
 export async function setQuizLock(quizSlug: string, locked: boolean) {
