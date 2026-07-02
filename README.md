@@ -30,9 +30,15 @@ pnpm dev
 1. Create `src/content/quizzes/milestone-N.ts` (copy the shape of `milestone-1.ts`).
 2. Register it in `src/content/quizzes/index.ts`.
 
+## Admin dashboard
+
+`/admin` — attempts, per-player progress, hardest questions (with the
+most-picked wrong answer), and accuracy by topic. Protected by the
+`ADMIN_PASSWORD` env var; without it the dashboard stays locked.
+
 ## Deploy
 
-Vercel: import the repo, set `DATABASE_URL`. Done.
+Vercel: import the repo, set `DATABASE_URL` and `ADMIN_PASSWORD`. Done.
 
 ## Resetting a forgotten PIN
 
