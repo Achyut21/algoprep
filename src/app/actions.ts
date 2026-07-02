@@ -1,0 +1,103 @@
+"use server";
+
+import { eq } from "drizzle-orm";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { z } from "zod";
+import { getQuiz } from "@/content/quizzes";
+import { getDb } from "@/db";
+import { attemptAnswers, attempts, profiles } from "@/db/schema";
+
+const PROFILE_COOKIE = "profileId";
+const ONE_YEAR = 60 * 60 * 24 * 365;
+
+const nameSchema = z.string().trim().min(1).max(30);
+
+export async function createOrPickProfile(formData: FormData) {
+  const parsed = nameSchema.safeParse(formData.get("name"));
+  if (!parsed.success) return;
+
+  const db = getDb();
+  const name = parsed.data;
+  const existing = await db.query.profiles.findFirst({
+    where: eq(profiles.name, name),
+  });
+
+  const profile =
+    existing ?? (await db.insert(profiles).values({ name }).returning())[0];
+
+  const cookieStore = await cookies();
+  cookieStore.set(PROFILE_COOKIE, String(profile.id), { maxAge: ONE_YEAR });
+}
+
+export async function selectProfile(profileId: number) {
+  const cookieStore = await cookies();
+  cookieStore.set(PROFILE_COOKIE, String(profileId), { maxAge: ONE_YEAR });
+}
+
+export async function switchProfile() {
+  const cookieStore = await cookies();
+  cookieStore.delete(PROFILE_COOKIE);
+}
+
+export async function getActiveProfile() {
+  const cookieStore = await cookies();
+  const id = Number(cookieStore.get(PROFILE_COOKIE)?.value);
+  if (!Number.isInteger(id)) return null;
+  const profile = await getDb().query.profiles.findFirst({
+    where: eq(profiles.id, id),
+  });
+  return profile ?? null;
+}
+
+const submitSchema = z.object({
+  quizSlug: z.string(),
+  answers: z.array(
+    z.object({
+      questionId: z.string(),
+      chosenIndex: z.number().int().min(0).max(3).nullable(),
+    })
+  ),
+});
+
+export async function submitAttempt(input: z.infer<typeof submitSchema>) {
+  const { quizSlug, answers } = submitSchema.parse(input);
+
+  const quiz = getQuiz(quizSlug);
+  if (!quiz) throw new Error(`Unknown quiz: ${quizSlug}`);
+
+  const profile = await getActiveProfile();
+  if (!profile) redirect("/");
+
+  const chosenByQuestion = new Map(
+    answers.map((a) => [a.questionId, a.chosenIndex])
+  );
+
+  const graded = quiz.questions.map((question) => {
+    const chosenIndex = chosenByQuestion.get(question.id) ?? null;
+    return {
+      questionId: question.id,
+      chosenIndex,
+      isCorrect: chosenIndex === question.correctIndex,
+    };
+  });
+
+  const score = graded.filter((g) => g.isCorrect).length;
+
+  const db = getDb();
+  const [attempt] = await db
+    .insert(attempts)
+    .values({
+      profileId: profile.id,
+      quizSlug,
+      score,
+      total: quiz.questions.length,
+    })
+    .returning();
+
+  await db
+    .insert(attemptAnswers)
+    .values(graded.map((g) => ({ ...g, attemptId: attempt.id })));
+
+  redirect(`/results/${attempt.id}`);
+}
