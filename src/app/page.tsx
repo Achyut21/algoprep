@@ -70,6 +70,9 @@ export default async function HomePage() {
   const profile = await getActiveProfile();
   const allProfiles = await db.query.profiles.findMany();
   const allAttempts = await db.query.attempts.findMany();
+  const lockedSlugs = new Set(
+    (await db.query.quizLocks.findMany()).map((l) => l.quizSlug)
+  );
 
   if (!profile) {
     return (
@@ -182,11 +185,17 @@ export default async function HomePage() {
                   <Button asChild variant="outline" className="font-mono">
                     <Link href={`/practice/${quiz.slug}`}>practice</Link>
                   </Button>
-                  <Button asChild className="font-mono">
-                    <Link href={`/quiz/${quiz.slug}`}>
-                      {stats ? "retry ↺" : "start →"}
-                    </Link>
-                  </Button>
+                  {lockedSlugs.has(quiz.slug) ? (
+                    <Button disabled className="font-mono">
+                      🔒 exam locked
+                    </Button>
+                  ) : (
+                    <Button asChild className="font-mono">
+                      <Link href={`/quiz/${quiz.slug}`}>
+                        {stats ? "retry ↺" : "start →"}
+                      </Link>
+                    </Button>
+                  )}
                 </div>
               </CardContent>
             </Card>

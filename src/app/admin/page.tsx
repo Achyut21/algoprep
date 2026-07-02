@@ -29,7 +29,7 @@ import {
 import { isAdmin } from "@/lib/admin";
 import { cn } from "@/lib/utils";
 import { AdminLogin } from "./admin-login";
-import { adminLogout } from "./actions";
+import { adminLogout, setQuizLock } from "./actions";
 import { ManagePlayers } from "./manage-players";
 
 export const dynamic = "force-dynamic";
@@ -66,11 +66,13 @@ export default async function AdminPage() {
   }
 
   const db = getDb();
-  const [profiles, attempts, answers] = await Promise.all([
+  const [profiles, attempts, answers, locks] = await Promise.all([
     db.query.profiles.findMany(),
     db.query.attempts.findMany(),
     db.query.attemptAnswers.findMany(),
+    db.query.quizLocks.findMany(),
   ]);
+  const lockedSlugs = new Set(locks.map((l) => l.quizSlug));
 
   const profileById = new Map(profiles.map((p) => [p.id, p]));
   const questionById = questionLookup();
@@ -278,6 +280,44 @@ export default async function AdminPage() {
             </div>
           ))}
         </div>
+      </section>
+
+      <section className="space-y-4">
+        <SectionHeading>exams</SectionHeading>
+        <Card>
+          <CardContent className="divide-y divide-border font-mono text-sm">
+            {quizzes.map((quiz) => {
+              const locked = lockedSlugs.has(quiz.slug);
+              return (
+                <div
+                  key={quiz.slug}
+                  className="flex items-center justify-between py-2.5 first:pt-1 last:pb-1"
+                >
+                  <span>
+                    {quiz.slug}
+                    <span
+                      className={cn(
+                        "ml-3 text-xs",
+                        locked ? "text-destructive" : "text-primary"
+                      )}
+                    >
+                      {locked ? "🔒 locked" : "open"}
+                    </span>
+                  </span>
+                  <form action={setQuizLock.bind(null, quiz.slug, !locked)}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="font-mono text-xs"
+                    >
+                      {locked ? "open exam" : "lock exam"}
+                    </Button>
+                  </form>
+                </div>
+              );
+            })}
+          </CardContent>
+        </Card>
       </section>
 
       <section className="space-y-4">

@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { z } from "zod";
 import { getDb } from "@/db";
-import { profiles } from "@/db/schema";
+import { profiles, quizLocks } from "@/db/schema";
 import { ADMIN_COOKIE, adminToken, hashAdminPassword, isAdmin } from "@/lib/admin";
 
 const THIRTY_DAYS = 60 * 60 * 24 * 30;
@@ -61,4 +61,16 @@ export async function resetPin(profileId: number) {
     .set({ pinHash: null })
     .where(eq(profiles.id, profileId));
   revalidatePath("/admin");
+}
+
+export async function setQuizLock(quizSlug: string, locked: boolean) {
+  if (!(await isAdmin())) return;
+  const db = getDb();
+  if (locked) {
+    await db.insert(quizLocks).values({ quizSlug }).onConflictDoNothing();
+  } else {
+    await db.delete(quizLocks).where(eq(quizLocks.quizSlug, quizSlug));
+  }
+  revalidatePath("/admin");
+  revalidatePath("/");
 }

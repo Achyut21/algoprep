@@ -20,6 +20,12 @@ export const attempts = pgTable("attempts", {
   finishedAt: timestamp("finished_at").notNull().defaultNow(),
 });
 
+/** A row here means the exam for that quiz is closed (practice stays open). */
+export const quizLocks = pgTable("quiz_locks", {
+  quizSlug: text("quiz_slug").primaryKey(),
+  lockedAt: timestamp("locked_at").notNull().defaultNow(),
+});
+
 export const attemptAnswers = pgTable("attempt_answers", {
   id: serial("id").primaryKey(),
   attemptId: integer("attempt_id")
