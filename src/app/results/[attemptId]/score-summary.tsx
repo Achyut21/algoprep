@@ -23,6 +23,7 @@ export function ScoreSummary({
   byTopic,
   quizSlug,
   durationSeconds,
+  adminViewer,
 }: {
   name: string;
   score: number;
@@ -30,6 +31,7 @@ export function ScoreSummary({
   byTopic: { topic: string; correct: number; total: number }[];
   quizSlug: string;
   durationSeconds: number | null;
+  adminViewer: boolean;
 }) {
   const pct = Math.round((score / total) * 100);
   const [displayScore, setDisplayScore] = useState(0);
@@ -112,6 +114,11 @@ export function ScoreSummary({
             ))}
           </div>
           <div className="flex justify-center gap-2 font-mono">
+            {adminViewer && (
+              <Button asChild variant="outline">
+                <Link href="/admin">← admin</Link>
+              </Button>
+            )}
             <Button asChild variant="outline">
               <Link href="/">← home</Link>
             </Button>

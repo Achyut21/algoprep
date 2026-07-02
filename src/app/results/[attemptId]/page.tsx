@@ -8,6 +8,7 @@ import { getQuiz } from "@/content/quizzes";
 import type { Topic } from "@/content/quizzes/types";
 import { getDb } from "@/db";
 import { attemptAnswers, attempts, profiles } from "@/db/schema";
+import { isAdmin } from "@/lib/admin";
 import { cn } from "@/lib/utils";
 import { ScoreSummary } from "./score-summary";
 
@@ -58,6 +59,7 @@ export default async function ResultsPage({
         byTopic={byTopic}
         quizSlug={quiz.slug}
         durationSeconds={attempt.durationSeconds}
+        adminViewer={await isAdmin()}
       />
 
       <section className="space-y-4">

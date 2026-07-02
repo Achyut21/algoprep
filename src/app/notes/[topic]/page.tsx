@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { NoteTracker } from "@/components/note-tracker";
 import { Button } from "@/components/ui/button";
 import { noteDocs } from "@/content/notes";
+import { isAdmin } from "@/lib/admin";
 import { ArraysNotes } from "../arrays-notes";
 import { BigONotes } from "../big-o-notes";
 import { IntroductionNotes } from "../introduction-notes";
@@ -15,10 +16,6 @@ const CONTENT: Record<string, React.ComponentType> = {
   "big-o": BigONotes,
   arrays: ArraysNotes,
 };
-
-export function generateStaticParams() {
-  return noteDocs.map((doc) => ({ topic: doc.slug }));
-}
 
 export async function generateMetadata({
   params,
@@ -42,6 +39,7 @@ export default async function NotesPage({
 
   const prev = index > 0 ? noteDocs[index - 1].slug : null;
   const next = index < noteDocs.length - 1 ? noteDocs[index + 1].slug : null;
+  const adminViewer = await isAdmin();
 
   return (
     <main className="mx-auto w-full max-w-2xl space-y-6 p-6">
@@ -52,9 +50,16 @@ export default async function NotesPage({
           cat notes/{topic}.md
           <span className="cursor-blink text-primary">▌</span>
         </h1>
-        <Button asChild variant="ghost" className="font-mono text-xs">
-          <Link href="/">← home</Link>
-        </Button>
+        <span className="flex items-center gap-1">
+          {adminViewer && (
+            <Button asChild variant="ghost" className="font-mono text-xs">
+              <Link href="/admin">← admin</Link>
+            </Button>
+          )}
+          <Button asChild variant="ghost" className="font-mono text-xs">
+            <Link href="/">← home</Link>
+          </Button>
+        </span>
       </header>
 
       <Content />
