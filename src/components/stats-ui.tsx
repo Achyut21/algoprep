@@ -60,6 +60,12 @@ export function Spark({ scores, total }: { scores: number[]; total: number }) {
   );
 }
 
+export function fmtDuration(seconds: number) {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return m > 0 ? `${m}m ${String(s).padStart(2, "0")}s` : `${s}s`;
+}
+
 export function fmtDate(d: Date) {
   return d.toLocaleString("en-US", {
     month: "short",

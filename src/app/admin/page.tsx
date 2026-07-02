@@ -12,6 +12,7 @@ import {
   accuracyText,
   Bar,
   fmtDate,
+  fmtDuration,
   SectionHeading,
   Spark,
   StatTile,
@@ -29,6 +30,7 @@ import { isAdmin } from "@/lib/admin";
 import { cn } from "@/lib/utils";
 import { AdminLogin } from "./admin-login";
 import { adminLogout } from "./actions";
+import { ManagePlayers } from "./manage-players";
 
 export const dynamic = "force-dynamic";
 
@@ -279,6 +281,17 @@ export default async function AdminPage() {
       </section>
 
       <section className="space-y-4">
+        <SectionHeading>manage players</SectionHeading>
+        <ManagePlayers
+          profiles={profiles.map((p) => ({
+            id: p.id,
+            name: p.name,
+            hasPin: p.pinHash !== null,
+          }))}
+        />
+      </section>
+
+      <section className="space-y-4">
         <SectionHeading>recent attempts</SectionHeading>
         {recent.length === 0 ? (
           <p className="font-mono text-sm text-muted-foreground">
@@ -301,6 +314,8 @@ export default async function AdminPage() {
                   <span className="flex items-center gap-4">
                     <span className="text-xs text-muted-foreground">
                       {fmtDate(attempt.finishedAt)}
+                      {attempt.durationSeconds !== null &&
+                        ` · ${fmtDuration(attempt.durationSeconds)}`}
                     </span>
                     <span
                       className={cn(

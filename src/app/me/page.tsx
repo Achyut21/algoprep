@@ -22,6 +22,7 @@ import { quizzes, topicNotes } from "@/content/quizzes";
 import { getDb } from "@/db";
 import { attempts as attemptsTable, attemptAnswers } from "@/db/schema";
 import {
+  computeBadges,
   pctOf,
   questionDifficulty,
   questionLookup,
@@ -117,6 +118,32 @@ export default async function MyStatsPage() {
                 label="last quiz"
                 value={fmtDate(recent[0].finishedAt)}
               />
+            </div>
+          </section>
+
+          <section className="space-y-4">
+            <SectionHeading>badges</SectionHeading>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {computeBadges(attempts).map((badge) => (
+                <div
+                  key={badge.id}
+                  className={cn(
+                    "rounded-lg border p-3 text-center",
+                    badge.earned
+                      ? "border-primary/50 bg-primary/10"
+                      : "opacity-40"
+                  )}
+                  title={badge.hint}
+                >
+                  <p className="text-2xl">{badge.earned ? badge.emoji : "🔒"}</p>
+                  <p className="mt-1 font-mono text-xs font-semibold">
+                    {badge.label}
+                  </p>
+                  <p className="mt-0.5 font-mono text-[10px] text-muted-foreground">
+                    {badge.hint}
+                  </p>
+                </div>
+              ))}
             </div>
           </section>
 

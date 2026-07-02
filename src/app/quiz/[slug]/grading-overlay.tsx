@@ -21,11 +21,15 @@ const OUTPUT: OutLine[] = [
 export function GradingOverlay({
   playerName,
   quizSlug,
+  failed = false,
   onDone,
+  onRetry,
 }: {
   playerName: string;
   quizSlug: string;
+  failed?: boolean;
   onDone: () => void;
+  onRetry?: () => void;
 }) {
   const command = `./grade --player ${playerName.toLowerCase()} --quiz ${quizSlug}`;
   const [typed, setTyped] = useState(0);
@@ -88,13 +92,30 @@ export function GradingOverlay({
               )}
             </p>
           ))}
-          {finished && (
+          {finished && !failed && (
             <p>
               <span className="text-muted-foreground">
                 &gt; generating report{" "}
               </span>
               <span className="cursor-blink text-primary">▌</span>
             </p>
+          )}
+          {failed && (
+            <div className="space-y-3">
+              <p className="text-destructive">
+                ✗ grading failed — could not reach the server
+              </p>
+              <p className="text-muted-foreground">
+                your answers are safe. check the internet and retry.
+              </p>
+              <button
+                type="button"
+                onClick={onRetry}
+                className="rounded-md border border-primary bg-primary/10 px-3 py-1.5 font-mono text-xs text-primary hover:bg-primary/20"
+              >
+                retry ↺
+              </button>
+            </div>
           )}
         </div>
       </motion.div>

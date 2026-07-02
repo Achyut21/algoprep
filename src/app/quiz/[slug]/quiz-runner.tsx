@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
-import { useCallback, useState, useTransition } from "react";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { submitAttempt } from "@/app/actions";
 import { GradingOverlay } from "./grading-overlay";
 import { CodeBlock } from "@/components/code-block";
@@ -29,21 +29,59 @@ const slideVariants = {
   exit: (direction: number) => ({ x: direction * -48, opacity: 0 }),
 };
 
+type SavedState = {
+  startedAt: number;
+  picks: Record<string, number>;
+};
+
+function fmtElapsed(seconds: number) {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+}
+
 export function QuizRunner({
   quizSlug,
+  profileId,
   playerName,
   questions,
 }: {
   quizSlug: string;
+  profileId: number;
   playerName: string;
   questions: ClientQuestion[];
 }) {
+  const storageKey = `algoprep:${quizSlug}:${profileId}`;
+
   const [answers, setAnswers] = useState<(number | null)[]>(
     Array(questions.length).fill(null)
   );
   const [[current, direction], setNav] = useState<[number, number]>([0, 0]);
   const [grading, setGrading] = useState(false);
+  const [submitError, setSubmitError] = useState(false);
+  const [elapsed, setElapsed] = useState(0);
+  const startedAt = useRef(0);
   const [, startTransition] = useTransition();
+
+  // Restore an interrupted run (answers by question id survive reshuffles),
+  // then start the elapsed-time ticker.
+  useEffect(() => {
+    const raw = localStorage.getItem(storageKey);
+    if (raw) {
+      const saved: SavedState = JSON.parse(raw);
+      startedAt.current = saved.startedAt;
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time restore of an interrupted run
+      setAnswers(questions.map((q) => saved.picks[q.id] ?? null));
+    } else {
+      startedAt.current = Date.now();
+    }
+    const t = setInterval(
+      () => setElapsed(Math.floor((Date.now() - startedAt.current) / 1000)),
+      1000
+    );
+    return () => clearInterval(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [storageKey]);
 
   const question = questions[current];
   const answered = answers.filter((a) => a !== null).length;
@@ -54,22 +92,54 @@ export function QuizRunner({
   }
 
   function choose(questionIndex: number, optionIndex: number) {
-    setAnswers((prev) =>
-      prev.map((a, i) => (i === questionIndex ? optionIndex : a))
-    );
+    setAnswers((prev) => {
+      const next = prev.map((a, i) => (i === questionIndex ? optionIndex : a));
+      const picks: Record<string, number> = {};
+      questions.forEach((q, i) => {
+        if (next[i] !== null) picks[q.id] = next[i];
+      });
+      localStorage.setItem(
+        storageKey,
+        JSON.stringify({ startedAt: startedAt.current, picks } as SavedState)
+      );
+      return next;
+    });
   }
 
   const runSubmit = useCallback(() => {
+    setSubmitError(false);
     startTransition(async () => {
-      await submitAttempt({
-        quizSlug,
-        answers: questions.map((q, i) => ({
-          questionId: q.id,
-          chosenIndex: answers[i],
-        })),
-      });
+      try {
+        localStorage.removeItem(storageKey);
+        await submitAttempt({
+          quizSlug,
+          durationSeconds: Math.floor((Date.now() - startedAt.current) / 1000),
+          answers: questions.map((q, i) => ({
+            questionId: q.id,
+            chosenIndex: answers[i],
+          })),
+        });
+      } catch (error) {
+        if (
+          error instanceof Error &&
+          "digest" in error &&
+          String(error.digest).startsWith("NEXT_REDIRECT")
+        ) {
+          throw error;
+        }
+        // Put the answers back so a reload after a failed submit loses nothing.
+        const picks: Record<string, number> = {};
+        questions.forEach((q, i) => {
+          if (answers[i] !== null) picks[q.id] = answers[i];
+        });
+        localStorage.setItem(
+          storageKey,
+          JSON.stringify({ startedAt: startedAt.current, picks } as SavedState)
+        );
+        setSubmitError(true);
+      }
     });
-  }, [quizSlug, questions, answers]);
+  }, [quizSlug, questions, answers, storageKey]);
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-2xl flex-col gap-6 p-6">
@@ -77,7 +147,9 @@ export function QuizRunner({
         <GradingOverlay
           playerName={playerName}
           quizSlug={quizSlug}
+          failed={submitError}
           onDone={runSubmit}
+          onRetry={runSubmit}
         />
       )}
       <motion.header
@@ -92,7 +164,7 @@ export function QuizRunner({
             {quizSlug}
           </h1>
           <span className="text-xs text-muted-foreground">
-            {playerName.toLowerCase()}@algoprep
+            {fmtElapsed(elapsed)} · {playerName.toLowerCase()}@algoprep
           </span>
         </div>
         <div className="flex items-center gap-3">

@@ -12,8 +12,16 @@ Milestone quiz site for kids working through a Data Structures & Algorithms cour
 ## How it works
 
 - Questions live in the repo (`src/content/quizzes/`), not the database — the DB only stores profiles, attempts, and per-question answers.
-- Exam mode: the quiz page strips the answer key before anything reaches the browser; grading happens in a server action.
-- No accounts: players are seeded by name and set a 4-digit PIN on first login.
+- Exam mode: questions are shuffled per attempt, the quiz page strips the
+  answer key before anything reaches the browser, and grading happens in a
+  server action. Answers persist in localStorage, so a mid-quiz refresh
+  loses nothing. Each attempt records its duration.
+- Practice mode (`/practice/<slug>`): instant feedback per question via a
+  server action, nothing saved.
+- Players get their own stats at `/me` — per-quiz progress, topic strengths
+  linked to the notes, most-missed questions, badges.
+- No accounts: players are added from the admin dashboard (or `pnpm seed`)
+  and set a 4-digit PIN on first login.
 
 ## Setup
 

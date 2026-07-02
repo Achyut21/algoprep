@@ -2,9 +2,9 @@ import { notFound, redirect } from "next/navigation";
 import { getActiveProfile } from "@/app/actions";
 import { getQuiz } from "@/content/quizzes";
 import { shuffled, toClientQuestion } from "@/lib/quiz-utils";
-import { QuizRunner } from "./quiz-runner";
+import { PracticeRunner } from "./practice-runner";
 
-export default async function QuizPage({
+export default async function PracticePage({
   params,
 }: {
   params: Promise<{ slug: string }>;
@@ -16,13 +16,11 @@ export default async function QuizPage({
   const profile = await getActiveProfile();
   if (!profile) redirect("/");
 
-  // Fresh order every attempt; the answer key never leaves the server.
   const questions = shuffled(quiz.questions).map(toClientQuestion);
 
   return (
-    <QuizRunner
+    <PracticeRunner
       quizSlug={quiz.slug}
-      profileId={profile.id}
       playerName={profile.name}
       questions={questions}
     />

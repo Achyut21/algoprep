@@ -4,7 +4,7 @@ import { eq } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { getQuiz } from "@/content/quizzes";
+import { getQuiz, quizzes } from "@/content/quizzes";
 import { getDb } from "@/db";
 import { attemptAnswers, attempts, profiles } from "@/db/schema";
 import { hashPin } from "@/lib/pin";
@@ -60,6 +60,7 @@ export async function getActiveProfile() {
 
 const submitSchema = z.object({
   quizSlug: z.string(),
+  durationSeconds: z.number().int().min(0).max(86400).nullable(),
   answers: z.array(
     z.object({
       questionId: z.string(),
@@ -69,7 +70,7 @@ const submitSchema = z.object({
 });
 
 export async function submitAttempt(input: z.infer<typeof submitSchema>) {
-  const { quizSlug, answers } = submitSchema.parse(input);
+  const { quizSlug, durationSeconds, answers } = submitSchema.parse(input);
 
   const quiz = getQuiz(quizSlug);
   if (!quiz) throw new Error(`Unknown quiz: ${quizSlug}`);
@@ -100,6 +101,7 @@ export async function submitAttempt(input: z.infer<typeof submitSchema>) {
       quizSlug,
       score,
       total: quiz.questions.length,
+      durationSeconds,
     })
     .returning();
 
@@ -108,4 +110,23 @@ export async function submitAttempt(input: z.infer<typeof submitSchema>) {
     .values(graded.map((g) => ({ ...g, attemptId: attempt.id })));
 
   redirect(`/results/${attempt.id}`);
+}
+
+const checkSchema = z.object({
+  questionId: z.string(),
+  chosenIndex: z.number().int().min(0).max(3),
+});
+
+/** Practice mode: reveal the answer for ONE question after the player commits a pick. */
+export async function checkAnswer(input: z.infer<typeof checkSchema>) {
+  const { questionId, chosenIndex } = checkSchema.parse(input);
+  const question = quizzes
+    .flatMap((quiz) => quiz.questions)
+    .find((q) => q.id === questionId);
+  if (!question) throw new Error(`Unknown question: ${questionId}`);
+  return {
+    correctIndex: question.correctIndex,
+    isCorrect: chosenIndex === question.correctIndex,
+    explanation: question.explanation,
+  };
 }

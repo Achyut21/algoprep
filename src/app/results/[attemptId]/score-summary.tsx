@@ -3,6 +3,7 @@
 import { animate, motion } from "motion/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { fmtDuration } from "@/components/stats-ui";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -21,12 +22,14 @@ export function ScoreSummary({
   total,
   byTopic,
   quizSlug,
+  durationSeconds,
 }: {
   name: string;
   score: number;
   total: number;
   byTopic: { topic: string; correct: number; total: number }[];
   quizSlug: string;
+  durationSeconds: number | null;
 }) {
   const pct = Math.round((score / total) * 100);
   const [displayScore, setDisplayScore] = useState(0);
@@ -69,6 +72,11 @@ export function ScoreSummary({
             <span className="text-muted-foreground">/{total}</span>
           </CardTitle>
           <p className="text-muted-foreground">{verdict(pct)}</p>
+          {durationSeconds !== null && (
+            <p className="font-mono text-xs text-muted-foreground">
+              finished in {fmtDuration(durationSeconds)}
+            </p>
+          )}
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex items-center gap-3">

@@ -57,6 +57,7 @@ export default async function ResultsPage({
         total={attempt.total}
         byTopic={byTopic}
         quizSlug={quiz.slug}
+        durationSeconds={attempt.durationSeconds}
       />
 
       <section className="space-y-4">

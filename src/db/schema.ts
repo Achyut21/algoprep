@@ -16,6 +16,7 @@ export const attempts = pgTable("attempts", {
   quizSlug: text("quiz_slug").notNull(),
   score: integer("score").notNull(),
   total: integer("total").notNull(),
+  durationSeconds: integer("duration_seconds"),
   finishedAt: timestamp("finished_at").notNull().defaultNow(),
 });
 

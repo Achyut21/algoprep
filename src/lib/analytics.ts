@@ -71,6 +71,39 @@ export function topicAccuracy(
   }));
 }
 
+export type PlayerBadge = {
+  id: string;
+  label: string;
+  emoji: string;
+  earned: boolean;
+  hint: string;
+};
+
+export function computeBadges(attempts: Attempt[]): PlayerBadge[] {
+  const pcts = attempts.map((a) => pctOf(a.score, a.total));
+  const best = pcts.length ? Math.max(...pcts) : 0;
+  const days = new Set(attempts.map((a) => a.finishedAt.toDateString())).size;
+
+  const improved = [...new Set(attempts.map((a) => a.quizSlug))].some(
+    (slug) => {
+      const runs = attempts
+        .filter((a) => a.quizSlug === slug)
+        .sort((a, b) => a.finishedAt.getTime() - b.finishedAt.getTime());
+      return runs.some((run, i) => i > 0 && run.score > runs[i - 1].score);
+    }
+  );
+
+  return [
+    { id: "first", label: "first steps", emoji: "🐣", earned: attempts.length >= 1, hint: "finish your first quiz" },
+    { id: "regular", label: "regular", emoji: "🔁", earned: attempts.length >= 3, hint: "finish 3 quiz runs" },
+    { id: "grinder", label: "grinder", emoji: "🔥", earned: days >= 3, hint: "practice on 3 different days" },
+    { id: "climber", label: "climber", emoji: "📈", earned: improved, hint: "beat your previous score" },
+    { id: "halfway", label: "halfway there", emoji: "🌗", earned: best >= 50, hint: "score 50% or more" },
+    { id: "ninety", label: "90% club", emoji: "🏅", earned: best >= 90, hint: "score 90% or more" },
+    { id: "flawless", label: "flawless", emoji: "💯", earned: best >= 100, hint: "get a perfect score" },
+  ];
+}
+
 export type QuestionStat = {
   question: Question;
   total: number;
