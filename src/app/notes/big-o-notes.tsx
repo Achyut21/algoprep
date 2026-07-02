@@ -1,6 +1,6 @@
 import { CodeBlock } from "@/components/code-block";
 import { GrowthDemo, HalvingDemo } from "@/components/demos";
-import { NoteCard, Term, Tldr } from "./note-ui";
+import { NoteCard, PythonHint, Term, Tldr } from "./note-ui";
 
 export function BigONotes() {
   return (
@@ -45,6 +45,7 @@ export function BigONotes() {
           million. Grabbing a box by its number is O(1):
         </p>
         <CodeBlock code={"array = [1, 2, 3, 4, 5]\nprint(array[0])  # 1 step, always"} filename="constant.py" />
+        <PythonHint />
       </NoteCard>
 
       <NoteCard title="O(n) — linear time">

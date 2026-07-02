@@ -228,6 +228,111 @@ export function InsertShiftDemo() {
   );
 }
 
+/* ── A for loop, live ─────────────────────────────────────── */
+
+const LOOP_ITEMS = [4, 8, 15, 16];
+
+export function ForLoopDemo() {
+  const [step, setStep] = useState(0);
+  useEffect(() => {
+    const t = setInterval(
+      () => setStep((s) => (s + 1) % (LOOP_ITEMS.length + 2)),
+      1000
+    );
+    return () => clearInterval(t);
+  }, []);
+  const active = step < LOOP_ITEMS.length ? step : -1;
+  const printed = active === -1 ? LOOP_ITEMS.length : active + 1;
+  return (
+    <Frame>
+      <p className="font-mono text-xs">
+        <span style={{ color: "var(--syn-keyword)" }}>for</span> item{" "}
+        <span style={{ color: "var(--syn-keyword)" }}>in</span> [
+        {LOOP_ITEMS.map((v, i) => (
+          <span key={i}>
+            <span style={{ color: "var(--syn-number)" }}>{v}</span>
+            {i < LOOP_ITEMS.length - 1 && ", "}
+          </span>
+        ))}
+        ]:
+      </p>
+      <p className="font-mono text-xs">
+        {"    "}
+        <span style={{ color: "var(--syn-builtin)" }}>print</span>(item)
+      </p>
+      <div className="mt-3 flex gap-1.5">
+        {LOOP_ITEMS.map((v, i) => (
+          <Cell
+            key={i}
+            value={v}
+            index={i}
+            state={i === active ? "hit" : i < printed ? "dim" : "idle"}
+          />
+        ))}
+      </div>
+      <div className="mt-3 rounded-md border bg-black/30 p-2 font-mono text-xs leading-5">
+        {LOOP_ITEMS.slice(0, printed).map((v, i) => (
+          <p key={i}>{v}</p>
+        ))}
+        <p>
+          <span className="cursor-blink text-primary">▌</span>
+        </p>
+      </div>
+      <Caption>
+        {active === -1
+          ? "loop done — the body ran once per item, in order"
+          : `item is ${LOOP_ITEMS[active]} right now → print(item) outputs it`}
+      </Caption>
+    </Frame>
+  );
+}
+
+/* ── A function is a machine ──────────────────────────────── */
+
+const CALLS = [3, 5, 12];
+
+export function FunctionMachineDemo() {
+  const [step, setStep] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setStep((s) => s + 1), 1100);
+    return () => clearInterval(t);
+  }, []);
+  const idx = Math.floor(step / 2) % CALLS.length;
+  const revealed = step % 2 === 1;
+  const n = CALLS[idx];
+  return (
+    <Frame>
+      <p className="font-mono text-xs">
+        <span style={{ color: "var(--syn-keyword)" }}>def</span> double(n):
+      </p>
+      <p className="font-mono text-xs">
+        {"    "}
+        <span style={{ color: "var(--syn-keyword)" }}>return</span> n *{" "}
+        <span style={{ color: "var(--syn-number)" }}>2</span>
+      </p>
+      <div className="mt-3 flex items-center gap-3 font-mono text-sm">
+        <span className="rounded-md border border-cyan/50 bg-cyan/10 px-2.5 py-1.5">
+          double(<span style={{ color: "var(--syn-number)" }}>{n}</span>)
+        </span>
+        <span className="text-muted-foreground">→</span>
+        <span
+          className={cn(
+            "rounded-md border border-primary/50 bg-primary/10 px-2.5 py-1.5 text-primary transition-opacity duration-300",
+            revealed ? "opacity-100" : "opacity-0"
+          )}
+        >
+          {n * 2}
+        </span>
+      </div>
+      <Caption>
+        {revealed
+          ? `n became ${n}, so it returned ${n} * 2 = ${n * 2}`
+          : `calling double(${n}) — the value ${n} goes in as n…`}
+      </Caption>
+    </Frame>
+  );
+}
+
 /* ── Halving: why log n is tiny ───────────────────────────── */
 
 const HALVING_STEPS = [16, 8, 4, 2, 1];

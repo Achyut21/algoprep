@@ -4,7 +4,7 @@ import {
   InsertShiftDemo,
   LinearSearchDemo,
 } from "@/components/demos";
-import { NoteCard, Term, Tldr } from "./note-ui";
+import { NoteCard, PythonHint, Term, Tldr } from "./note-ui";
 
 export function ArraysNotes() {
   return (
@@ -116,6 +116,7 @@ export function ArraysNotes() {
           The <span className="font-mono">&apos;i&apos;</span> means &quot;this
           array holds integers&quot; — remember, arrays store ONE type only.
         </p>
+        <PythonHint />
       </NoteCard>
 
       <NoteCard title="try it 2 — growing the array">

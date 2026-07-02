@@ -3,22 +3,21 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { NoteTracker } from "@/components/note-tracker";
 import { Button } from "@/components/ui/button";
+import { noteDocs } from "@/content/notes";
 import { ArraysNotes } from "../arrays-notes";
 import { BigONotes } from "../big-o-notes";
 import { IntroductionNotes } from "../introduction-notes";
+import { PythonNotes } from "../python-notes";
 
-const TOPICS = {
-  introduction: { title: "Introduction", component: IntroductionNotes },
-  "big-o": { title: "Big O Notation", component: BigONotes },
-  arrays: { title: "Arrays", component: ArraysNotes },
-} as const;
-
-type TopicSlug = keyof typeof TOPICS;
-
-const ORDER: TopicSlug[] = ["introduction", "big-o", "arrays"];
+const CONTENT: Record<string, React.ComponentType> = {
+  python: PythonNotes,
+  introduction: IntroductionNotes,
+  "big-o": BigONotes,
+  arrays: ArraysNotes,
+};
 
 export function generateStaticParams() {
-  return ORDER.map((topic) => ({ topic }));
+  return noteDocs.map((doc) => ({ topic: doc.slug }));
 }
 
 export async function generateMetadata({
@@ -27,8 +26,8 @@ export async function generateMetadata({
   params: Promise<{ topic: string }>;
 }): Promise<Metadata> {
   const { topic } = await params;
-  const entry = TOPICS[topic as TopicSlug];
-  return { title: entry ? `${entry.title} — notes — AlgoPrep` : "AlgoPrep" };
+  const doc = noteDocs.find((d) => d.slug === topic);
+  return { title: doc ? `${doc.title} — notes — AlgoPrep` : "AlgoPrep" };
 }
 
 export default async function NotesPage({
@@ -37,13 +36,12 @@ export default async function NotesPage({
   params: Promise<{ topic: string }>;
 }) {
   const { topic } = await params;
-  const entry = TOPICS[topic as TopicSlug];
-  if (!entry) notFound();
+  const index = noteDocs.findIndex((d) => d.slug === topic);
+  const Content = CONTENT[topic];
+  if (index === -1 || !Content) notFound();
 
-  const index = ORDER.indexOf(topic as TopicSlug);
-  const prev = index > 0 ? ORDER[index - 1] : null;
-  const next = index < ORDER.length - 1 ? ORDER[index + 1] : null;
-  const Content = entry.component;
+  const prev = index > 0 ? noteDocs[index - 1].slug : null;
+  const next = index < noteDocs.length - 1 ? noteDocs[index + 1].slug : null;
 
   return (
     <main className="mx-auto w-full max-w-2xl space-y-6 p-6">

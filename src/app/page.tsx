@@ -11,6 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { noteDocs } from "@/content/notes";
 import { quizzes } from "@/content/quizzes";
 import { getDb } from "@/db";
 import type { Attempt } from "@/db/schema";
@@ -106,20 +107,17 @@ export default async function HomePage() {
         <FadeIn delay={0.2}>
           <p className="text-center font-mono text-xs text-muted-foreground">
             study first?{" "}
-            <Link
-              href="/notes/introduction"
-              className="text-primary hover:underline"
-            >
-              introduction
-            </Link>
-            {" · "}
-            <Link href="/notes/big-o" className="text-primary hover:underline">
-              big-o
-            </Link>
-            {" · "}
-            <Link href="/notes/arrays" className="text-primary hover:underline">
-              arrays
-            </Link>
+            {noteDocs.map((doc, i) => (
+              <span key={doc.slug}>
+                {i > 0 && " · "}
+                <Link
+                  href={`/notes/${doc.slug}`}
+                  className="text-primary hover:underline"
+                >
+                  {doc.slug}
+                </Link>
+              </span>
+            ))}
           </p>
         </FadeIn>
       </main>
@@ -205,12 +203,8 @@ export default async function HomePage() {
 
       <FadeIn className="space-y-4" delay={0.15}>
         <SectionHeading>study notes</SectionHeading>
-        <div className="grid gap-3 sm:grid-cols-3">
-          {[
-            { slug: "introduction", blurb: "structures, algorithms & friends" },
-            { slug: "big-o", blurb: "counting steps, not seconds" },
-            { slug: "arrays", blurb: "numbered boxes, side by side" },
-          ].map((note) => (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {noteDocs.map((note) => (
             <Link
               key={note.slug}
               href={`/notes/${note.slug}`}

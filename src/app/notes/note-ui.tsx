@@ -1,5 +1,18 @@
+import Link from "next/link";
 import { FadeInOnScroll } from "@/components/fade-in";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+export function PythonHint() {
+  return (
+    <p className="font-mono text-xs text-muted-foreground">
+      new to the syntax?{" "}
+      <Link href="/notes/python" className="text-primary hover:underline">
+        cat python.md →
+      </Link>{" "}
+      explains every keyword used in these snippets.
+    </p>
+  );
+}
 
 export function Tldr({ children }: { children: React.ReactNode }) {
   return (

@@ -17,7 +17,8 @@ import {
   Spark,
   StatTile,
 } from "@/components/stats-ui";
-import { quizzes, topicNotes } from "@/content/quizzes";
+import { noteDocs } from "@/content/notes";
+import { quizzes } from "@/content/quizzes";
 import { getDb } from "@/db";
 import {
   pctOf,
@@ -75,7 +76,6 @@ export default async function AdminPage() {
   ]);
   const lockedSlugs = new Set(locks.map((l) => l.quizSlug));
   const readBy = new Map(reads.map((r) => [`${r.profileId}:${r.topic}`, r]));
-  const noteDocs = Object.values(topicNotes);
 
   const profileById = new Map(profiles.map((p) => [p.id, p]));
   const questionById = questionLookup();
@@ -288,13 +288,13 @@ export default async function AdminPage() {
       <section className="space-y-4">
         <SectionHeading>study docs</SectionHeading>
         <div className="flex flex-wrap gap-2 font-mono text-xs">
-          {noteDocs.map((slug) => (
+          {noteDocs.map((doc) => (
             <Link
-              key={slug}
-              href={`/notes/${slug}`}
+              key={doc.slug}
+              href={`/notes/${doc.slug}`}
               className="rounded-md border px-2.5 py-1.5 text-primary transition-colors hover:border-primary/40 hover:bg-muted"
             >
-              cat {slug}.md ↗
+              cat {doc.slug}.md ↗
             </Link>
           ))}
         </div>
@@ -307,9 +307,9 @@ export default async function AdminPage() {
             ) : (
               <div className="divide-y divide-border">
                 {profiles.map((profile) => {
-                  const cells = noteDocs.map((slug) => ({
-                    slug,
-                    view: readBy.get(`${profile.id}:${slug}`),
+                  const cells = noteDocs.map((doc) => ({
+                    slug: doc.slug,
+                    view: readBy.get(`${profile.id}:${doc.slug}`),
                   }));
                   if (cells.every((c) => !c.view)) return null;
                   return (

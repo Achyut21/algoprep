@@ -1,15 +1,13 @@
 import { eq, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { topicNotes } from "@/content/quizzes";
+import { noteSlugs } from "@/content/notes";
 import { getDb } from "@/db";
 import { noteViews, profiles } from "@/db/schema";
 import { activeProfileId } from "@/lib/session";
 
 const bodySchema = z.object({
-  topic: z
-    .string()
-    .refine((t) => Object.values(topicNotes).includes(t), "unknown topic"),
+  topic: z.string().refine((t) => noteSlugs.includes(t), "unknown topic"),
   secondsDelta: z.number().int().min(0).max(300),
   maxScrollPct: z.number().int().min(0).max(100),
 });
