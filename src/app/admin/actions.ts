@@ -63,6 +63,28 @@ export async function resetPin(profileId: number) {
   revalidatePath("/admin");
 }
 
+export async function renamePlayer(input: { profileId: number; name: string }) {
+  if (!(await isAdmin())) return { error: "Not logged in as admin." };
+  const parsed = nameSchema.safeParse(input.name);
+  if (!parsed.success) return { error: "Name must be 1–30 characters." };
+
+  const db = getDb();
+  const taken = await db.query.profiles.findFirst({
+    where: eq(profiles.name, parsed.data),
+  });
+  if (taken && taken.id !== input.profileId) {
+    return { error: `"${parsed.data}" is already taken.` };
+  }
+
+  await db
+    .update(profiles)
+    .set({ name: parsed.data })
+    .where(eq(profiles.id, input.profileId));
+  revalidatePath("/admin");
+  revalidatePath("/");
+  return { error: null };
+}
+
 export async function deletePlayer(profileId: number) {
   if (!(await isAdmin())) return;
   const db = getDb();
