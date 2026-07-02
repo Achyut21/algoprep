@@ -17,7 +17,7 @@ import {
   Spark,
   StatTile,
 } from "@/components/stats-ui";
-import { quizzes } from "@/content/quizzes";
+import { quizzes, topicNotes } from "@/content/quizzes";
 import { getDb } from "@/db";
 import {
   pctOf,
@@ -66,13 +66,16 @@ export default async function AdminPage() {
   }
 
   const db = getDb();
-  const [profiles, attempts, answers, locks] = await Promise.all([
+  const [profiles, attempts, answers, locks, reads] = await Promise.all([
     db.query.profiles.findMany(),
     db.query.attempts.findMany(),
     db.query.attemptAnswers.findMany(),
     db.query.quizLocks.findMany(),
+    db.query.noteViews.findMany(),
   ]);
   const lockedSlugs = new Set(locks.map((l) => l.quizSlug));
+  const readBy = new Map(reads.map((r) => [`${r.profileId}:${r.topic}`, r]));
+  const noteDocs = Object.values(topicNotes);
 
   const profileById = new Map(profiles.map((p) => [p.id, p]));
   const questionById = questionLookup();
@@ -280,6 +283,73 @@ export default async function AdminPage() {
             </div>
           ))}
         </div>
+      </section>
+
+      <section className="space-y-4">
+        <SectionHeading>study docs</SectionHeading>
+        <div className="flex flex-wrap gap-2 font-mono text-xs">
+          {noteDocs.map((slug) => (
+            <Link
+              key={slug}
+              href={`/notes/${slug}`}
+              className="rounded-md border px-2.5 py-1.5 text-primary transition-colors hover:border-primary/40 hover:bg-muted"
+            >
+              cat {slug}.md ↗
+            </Link>
+          ))}
+        </div>
+        <Card>
+          <CardContent>
+            {reads.length === 0 ? (
+              <p className="font-mono text-sm text-muted-foreground">
+                nobody has opened the notes yet
+              </p>
+            ) : (
+              <div className="divide-y divide-border">
+                {profiles.map((profile) => {
+                  const cells = noteDocs.map((slug) => ({
+                    slug,
+                    view: readBy.get(`${profile.id}:${slug}`),
+                  }));
+                  if (cells.every((c) => !c.view)) return null;
+                  return (
+                    <div
+                      key={profile.id}
+                      className="flex flex-wrap items-baseline justify-between gap-2 py-2.5 first:pt-1 last:pb-1 font-mono text-sm"
+                    >
+                      <span>{profile.name}</span>
+                      <span className="flex flex-wrap gap-4 text-xs">
+                        {cells.map(({ slug, view }) => (
+                          <span key={slug} className="text-muted-foreground">
+                            {slug}{" "}
+                            {view ? (
+                              <>
+                                <span
+                                  className={cn(
+                                    view.maxScrollPct >= 90
+                                      ? "text-primary"
+                                      : "text-amber"
+                                  )}
+                                >
+                                  {view.maxScrollPct}%
+                                </span>{" "}
+                                · {fmtDuration(view.seconds)}
+                              </>
+                            ) : (
+                              <span className="text-muted-foreground/50">
+                                not opened
+                              </span>
+                            )}
+                          </span>
+                        ))}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </section>
 
       <section className="space-y-4">

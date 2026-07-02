@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { NoteTracker } from "@/components/note-tracker";
 import { Button } from "@/components/ui/button";
 import { ArraysNotes } from "../arrays-notes";
 import { BigONotes } from "../big-o-notes";
@@ -46,6 +47,7 @@ export default async function NotesPage({
 
   return (
     <main className="mx-auto w-full max-w-2xl space-y-6 p-6">
+      <NoteTracker topic={topic} />
       <header className="flex items-center justify-between">
         <h1 className="font-mono text-lg font-bold">
           <span className="text-primary">$ </span>

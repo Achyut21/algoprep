@@ -5,7 +5,13 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { z } from "zod";
 import { getDb } from "@/db";
-import { attemptAnswers, attempts, profiles, quizLocks } from "@/db/schema";
+import {
+  attemptAnswers,
+  attempts,
+  noteViews,
+  profiles,
+  quizLocks,
+} from "@/db/schema";
 import { ADMIN_COOKIE, adminToken, hashAdminPassword, isAdmin } from "@/lib/admin";
 
 const THIRTY_DAYS = 60 * 60 * 24 * 30;
@@ -100,6 +106,7 @@ export async function deletePlayer(profileId: number) {
     );
     await db.delete(attempts).where(eq(attempts.profileId, profileId));
   }
+  await db.delete(noteViews).where(eq(noteViews.profileId, profileId));
   await db.delete(profiles).where(eq(profiles.id, profileId));
   revalidatePath("/admin");
   revalidatePath("/");

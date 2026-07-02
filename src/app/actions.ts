@@ -8,8 +8,8 @@ import { getQuiz, quizzes } from "@/content/quizzes";
 import { getDb } from "@/db";
 import { attemptAnswers, attempts, profiles } from "@/db/schema";
 import { hashPin } from "@/lib/pin";
+import { activeProfileId, PROFILE_COOKIE } from "@/lib/session";
 
-const PROFILE_COOKIE = "profileId";
 const ONE_YEAR = 60 * 60 * 24 * 365;
 
 const loginSchema = z.object({
@@ -49,9 +49,8 @@ export async function switchProfile() {
 }
 
 export async function getActiveProfile() {
-  const cookieStore = await cookies();
-  const id = Number(cookieStore.get(PROFILE_COOKIE)?.value);
-  if (!Number.isInteger(id)) return null;
+  const id = await activeProfileId();
+  if (id === null) return null;
   const profile = await getDb().query.profiles.findFirst({
     where: eq(profiles.id, id),
   });
