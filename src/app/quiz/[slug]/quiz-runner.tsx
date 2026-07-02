@@ -1,8 +1,9 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
-import { useState, useTransition } from "react";
+import { useCallback, useState, useTransition } from "react";
 import { submitAttempt } from "@/app/actions";
+import { GradingOverlay } from "./grading-overlay";
 import { CodeBlock } from "@/components/code-block";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -41,7 +42,8 @@ export function QuizRunner({
     Array(questions.length).fill(null)
   );
   const [[current, direction], setNav] = useState<[number, number]>([0, 0]);
-  const [isPending, startTransition] = useTransition();
+  const [grading, setGrading] = useState(false);
+  const [, startTransition] = useTransition();
 
   const question = questions[current];
   const answered = answers.filter((a) => a !== null).length;
@@ -57,7 +59,7 @@ export function QuizRunner({
     );
   }
 
-  function submit() {
+  const runSubmit = useCallback(() => {
     startTransition(async () => {
       await submitAttempt({
         quizSlug,
@@ -67,10 +69,17 @@ export function QuizRunner({
         })),
       });
     });
-  }
+  }, [quizSlug, questions, answers]);
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-2xl flex-col gap-6 p-6">
+      {grading && (
+        <GradingOverlay
+          playerName={playerName}
+          quizSlug={quizSlug}
+          onDone={runSubmit}
+        />
+      )}
       <motion.header
         className="space-y-3"
         initial={{ opacity: 0, y: -12 }}
@@ -197,11 +206,11 @@ export function QuizRunner({
               </DialogHeader>
               <DialogFooter showCloseButton>
                 <Button
-                  onClick={submit}
-                  disabled={isPending}
+                  onClick={() => setGrading(true)}
+                  disabled={grading}
                   className="font-mono"
                 >
-                  {isPending ? "grading…" : "submit"}
+                  submit
                 </Button>
               </DialogFooter>
             </DialogContent>
