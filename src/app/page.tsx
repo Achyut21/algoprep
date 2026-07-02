@@ -100,6 +100,25 @@ export default async function HomePage() {
             </p>
           )}
         </FadeIn>
+        <FadeIn delay={0.2}>
+          <p className="text-center font-mono text-xs text-muted-foreground">
+            study first?{" "}
+            <Link
+              href="/notes/introduction"
+              className="text-primary hover:underline"
+            >
+              introduction
+            </Link>
+            {" · "}
+            <Link href="/notes/big-o" className="text-primary hover:underline">
+              big-o
+            </Link>
+            {" · "}
+            <Link href="/notes/arrays" className="text-primary hover:underline">
+              arrays
+            </Link>
+          </p>
+        </FadeIn>
       </main>
     );
   }
@@ -165,6 +184,30 @@ export default async function HomePage() {
             </Card>
           );
         })}
+      </FadeIn>
+
+      <FadeIn className="space-y-4" delay={0.15}>
+        <SectionHeading>study notes</SectionHeading>
+        <div className="grid gap-3 sm:grid-cols-3">
+          {[
+            { slug: "introduction", blurb: "structures, algorithms & friends" },
+            { slug: "big-o", blurb: "counting steps, not seconds" },
+            { slug: "arrays", blurb: "numbered boxes, side by side" },
+          ].map((note) => (
+            <Link
+              key={note.slug}
+              href={`/notes/${note.slug}`}
+              className="hover-glow rounded-lg border bg-card p-4 transition-colors hover:border-primary/40"
+            >
+              <p className="font-mono text-sm">
+                <span className="text-primary">cat</span> {note.slug}.md
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {note.blurb}
+              </p>
+            </Link>
+          ))}
+        </div>
       </FadeIn>
 
       <FadeIn className="space-y-4" delay={0.2}>
