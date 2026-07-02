@@ -16,10 +16,14 @@ const LETTERS = ["A", "B", "C", "D"];
 
 export default async function ResultsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ attemptId: string }>;
+  searchParams: Promise<{ from?: string }>;
 }) {
   const { attemptId } = await params;
+  const { from } = await searchParams;
+  const adminViewer = from === "admin" && (await isAdmin());
   const id = Number(attemptId);
   if (!Number.isInteger(id)) notFound();
 
@@ -59,7 +63,7 @@ export default async function ResultsPage({
         byTopic={byTopic}
         quizSlug={quiz.slug}
         durationSeconds={attempt.durationSeconds}
-        adminViewer={await isAdmin()}
+        adminViewer={adminViewer}
       />
 
       <section className="space-y-4">

@@ -291,7 +291,7 @@ export default async function AdminPage() {
           {noteDocs.map((doc) => (
             <Link
               key={doc.slug}
-              href={`/notes/${doc.slug}`}
+              href={`/notes/${doc.slug}?from=admin`}
               className="rounded-md border px-2.5 py-1.5 text-primary transition-colors hover:border-primary/40 hover:bg-muted"
             >
               cat {doc.slug}.md ↗
@@ -436,7 +436,7 @@ export default async function AdminPage() {
                       {attempt.score}/{attempt.total}
                     </span>
                     <Link
-                      href={`/results/${attempt.id}`}
+                      href={`/results/${attempt.id}?from=admin`}
                       className="text-xs text-primary hover:underline"
                     >
                       review →

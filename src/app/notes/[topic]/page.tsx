@@ -29,17 +29,21 @@ export async function generateMetadata({
 
 export default async function NotesPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ topic: string }>;
+  searchParams: Promise<{ from?: string }>;
 }) {
   const { topic } = await params;
+  const { from } = await searchParams;
   const index = noteDocs.findIndex((d) => d.slug === topic);
   const Content = CONTENT[topic];
   if (index === -1 || !Content) notFound();
 
   const prev = index > 0 ? noteDocs[index - 1].slug : null;
   const next = index < noteDocs.length - 1 ? noteDocs[index + 1].slug : null;
-  const adminViewer = await isAdmin();
+  const adminViewer = from === "admin" && (await isAdmin());
+  const fromSuffix = adminViewer ? "?from=admin" : "";
 
   return (
     <main className="mx-auto w-full max-w-2xl space-y-6 p-6">
@@ -64,14 +68,14 @@ export default async function NotesPage({
       <footer className="flex items-center justify-between border-t pt-6 font-mono text-sm">
         {prev ? (
           <Button asChild variant="outline">
-            <Link href={`/notes/${prev}`}>← {prev}</Link>
+            <Link href={`/notes/${prev}${fromSuffix}`}>← {prev}</Link>
           </Button>
         ) : (
           <span />
         )}
         {next ? (
           <Button asChild variant="outline">
-            <Link href={`/notes/${next}`}>{next} →</Link>
+            <Link href={`/notes/${next}${fromSuffix}`}>{next} →</Link>
           </Button>
         ) : (
           <Button asChild>
