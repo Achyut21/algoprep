@@ -134,11 +134,16 @@ export default async function HomePage() {
               <span className="text-foreground">{profile.name}</span>
             </p>
           </div>
-          <form action={switchProfile}>
-            <Button variant="ghost" className="font-mono text-xs">
-              switch player
+          <div className="flex items-center gap-1">
+            <Button asChild variant="ghost" className="font-mono text-xs">
+              <Link href="/me">my stats</Link>
             </Button>
-          </form>
+            <form action={switchProfile}>
+              <Button variant="ghost" className="font-mono text-xs">
+                switch player
+              </Button>
+            </form>
+          </div>
         </header>
       </FadeIn>
 
