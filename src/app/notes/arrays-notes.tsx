@@ -99,6 +99,82 @@ export function ArraysNotes() {
         <InsertShiftDemo />
       </NoteCard>
 
+      <Tldr>
+        Time to actually CODE. Copy each example below into your editor and
+        run it. Then change the numbers and run it again — predicting what
+        prints before you hit run is the fastest way to learn.
+      </Tldr>
+
+      <NoteCard title="try it 1 — create, peek inside, loop">
+        <CodeBlock
+          code={
+            "from array import *\n\nmy_array = array('i', [10, 20, 30, 40, 50])\n\nprint(my_array[0])    # 10  (index 0 = FIRST box)\nprint(my_array[3])    # 40  (index 3 = fourth box)\nprint(len(my_array))  # 5   (how many boxes)\n\nfor item in my_array:\n    print(item)       # prints all 5, one per line"
+          }
+          filename="try_1_basics.py"
+        />
+        <p className="text-muted-foreground">
+          The <span className="font-mono">&apos;i&apos;</span> means &quot;this
+          array holds integers&quot; — remember, arrays store ONE type only.
+        </p>
+      </NoteCard>
+
+      <NoteCard title="try it 2 — growing the array">
+        <CodeBlock
+          code={
+            "from array import *\n\nmy_array = array('i', [1, 2, 3])\n\nmy_array.append(4)      # add ONE item at the end\nprint(my_array)         # array('i', [1, 2, 3, 4])\n\nmy_array.insert(0, 99)  # put 99 AT index 0\nprint(my_array)         # array('i', [99, 1, 2, 3, 4])\n\nextra = array('i', [7, 8])\nmy_array.extend(extra)  # add ALL of extra at the end\nprint(my_array)         # array('i', [99, 1, 2, 3, 4, 7, 8])"
+          }
+          filename="try_2_growing.py"
+        />
+        <p className="text-muted-foreground">
+          Guess-then-run challenge: what would{" "}
+          <span className="font-mono">insert(2, 55)</span> print here?
+        </p>
+      </NoteCard>
+
+      <NoteCard title="try it 3 — shrinking the array">
+        <CodeBlock
+          code={
+            "from array import *\n\nmy_array = array('i', [5, 11, 25, 11, 40])\n\nmy_array.remove(11)  # deletes the FIRST 11 (by VALUE)\nprint(my_array)      # array('i', [5, 25, 11, 40])\n\nmy_array.pop()       # removes the LAST item\nprint(my_array)      # array('i', [5, 25, 11])\n\nmy_array.pop(0)      # removes whatever is at index 0\nprint(my_array)      # array('i', [25, 11])\n\nprint(my_array.index(11))  # 1  (where does 11 live now?)"
+          }
+          filename="try_3_shrinking.py"
+        />
+      </NoteCard>
+
+      <NoteCard title="try it 4 — write your own search">
+        <p>
+          This is the linear search from the table above, written by hand. Read
+          it line by line — it&apos;s exactly the &quot;check box by box&quot;
+          animation as code:
+        </p>
+        <CodeBlock
+          code={
+            "from array import *\n\ndef linear_search(arr, target):\n    for i in range(len(arr)):   # walk every index\n        if arr[i] == target:    # is this box the one?\n            return i            # yes — say WHERE\n    return -1                   # checked everything, not found\n\nnumbers = array('i', [7, 2, 9, 4, 8])\n\nprint(linear_search(numbers, 9))    # 2\nprint(linear_search(numbers, 100))  # -1"
+          }
+          filename="try_4_search.py"
+        />
+        <p className="text-muted-foreground">
+          Why -1? It&apos;s an impossible index, so it&apos;s a safe way to say
+          &quot;not found&quot;.
+        </p>
+      </NoteCard>
+
+      <NoteCard title="try it 5 — find the biggest number">
+        <p>
+          A classic from your course. Assume the first item is the biggest,
+          then challenge it against every other item:
+        </p>
+        <CodeBlock
+          code={
+            "def find_biggest(arr):\n    biggest = arr[0]              # champion so far\n    for i in range(1, len(arr)):  # challengers, one by one\n        if arr[i] > biggest:\n            biggest = arr[i]      # new champion!\n    return biggest\n\nprint(find_biggest([3, 51, 8, 42, 7]))  # 51"
+          }
+          filename="try_5_biggest.py"
+        />
+        <p className="text-muted-foreground">
+          One loop over n items → O(n) time. Homework: change one symbol to
+          make it find the SMALLEST instead.
+        </p>
+      </NoteCard>
+
       <NoteCard title="2D arrays (a grid of boxes)">
         <p>
           An array of arrays: rows and columns, like a spreadsheet. You grab a
@@ -126,6 +202,32 @@ export function ArraysNotes() {
         <p className="text-muted-foreground">
           Memory trick: axis-0 goes ↓ down the rows, axis-1 goes → across the
           columns.
+        </p>
+      </NoteCard>
+
+      <NoteCard title="try it 6 — build and explore a 2D grid">
+        <CodeBlock
+          code={
+            "import numpy as np\n\ngrid = np.array([[11, 15, 10],\n                 [10, 14, 11],\n                 [12, 17, 12]])\n\nprint(grid[1][2])   # 11  (row 1, column 2)\nprint(len(grid))    # 3   (number of rows)\nprint(len(grid[0])) # 3   (number of columns)\n\n# visit EVERY cell, row by row\nfor i in range(len(grid)):\n    for j in range(len(grid[0])):\n        print(grid[i][j])\n\nbigger  = np.append(grid, [[1, 2, 3]], axis=0)  # add a ROW\nsmaller = np.delete(grid, 0, axis=1)            # drop first COLUMN\nprint(bigger)\nprint(smaller)"
+          }
+          filename="try_6_grid.py"
+        />
+        <p className="text-muted-foreground">
+          The nested loop visits 3 × 3 = 9 cells — that&apos;s the O(mn)
+          traversal from the card above, as real code.
+        </p>
+      </NoteCard>
+
+      <NoteCard title="try it 7 — search the whole grid">
+        <CodeBlock
+          code={
+            "import numpy as np\n\ngrid = np.array([[11, 15, 10],\n                 [10, 14, 11],\n                 [12, 17, 12]])\n\ndef search_grid(arr, value):\n    for i in range(len(arr)):          # every row\n        for j in range(len(arr[0])):   # every column\n            if arr[i][j] == value:\n                return 'found at row ' + str(i) + ', column ' + str(j)\n    return 'not here'\n\nprint(search_grid(grid, 17))  # found at row 2, column 1\nprint(search_grid(grid, 99))  # not here"
+          }
+          filename="try_7_grid_search.py"
+        />
+        <p className="text-muted-foreground">
+          Same box-by-box idea as try it 4, just in two directions. Worst case
+          it checks all m × n cells.
         </p>
       </NoteCard>
 
