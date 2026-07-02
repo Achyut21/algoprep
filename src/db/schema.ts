@@ -3,6 +3,8 @@ import { boolean, integer, pgTable, serial, text, timestamp } from "drizzle-orm/
 export const profiles = pgTable("profiles", {
   id: serial("id").primaryKey(),
   name: text("name").notNull().unique(),
+  // sha256 hash; null until the kid sets their PIN on first login
+  pinHash: text("pin_hash"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

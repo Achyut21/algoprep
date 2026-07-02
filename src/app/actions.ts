@@ -7,32 +7,40 @@ import { z } from "zod";
 import { getQuiz } from "@/content/quizzes";
 import { getDb } from "@/db";
 import { attemptAnswers, attempts, profiles } from "@/db/schema";
+import { hashPin } from "@/lib/pin";
 
 const PROFILE_COOKIE = "profileId";
 const ONE_YEAR = 60 * 60 * 24 * 365;
 
-const nameSchema = z.string().trim().min(1).max(30);
+const loginSchema = z.object({
+  profileId: z.number().int(),
+  pin: z.string().regex(/^\d{4}$/, "PIN must be 4 digits"),
+});
 
-export async function createOrPickProfile(formData: FormData) {
-  const parsed = nameSchema.safeParse(formData.get("name"));
-  if (!parsed.success) return;
+export async function loginProfile(input: z.infer<typeof loginSchema>) {
+  const parsed = loginSchema.safeParse(input);
+  if (!parsed.success) return { error: "Your PIN must be 4 digits." };
 
+  const { profileId, pin } = parsed.data;
   const db = getDb();
-  const name = parsed.data;
-  const existing = await db.query.profiles.findFirst({
-    where: eq(profiles.name, name),
+  const profile = await db.query.profiles.findFirst({
+    where: eq(profiles.id, profileId),
   });
+  if (!profile) return { error: "That player doesn't exist anymore." };
 
-  const profile =
-    existing ?? (await db.insert(profiles).values({ name }).returning())[0];
+  const hashed = hashPin(profileId, pin);
+  if (profile.pinHash === null) {
+    await db
+      .update(profiles)
+      .set({ pinHash: hashed })
+      .where(eq(profiles.id, profileId));
+  } else if (profile.pinHash !== hashed) {
+    return { error: "That's not the right PIN. Try again!" };
+  }
 
-  const cookieStore = await cookies();
-  cookieStore.set(PROFILE_COOKIE, String(profile.id), { maxAge: ONE_YEAR });
-}
-
-export async function selectProfile(profileId: number) {
   const cookieStore = await cookies();
   cookieStore.set(PROFILE_COOKIE, String(profileId), { maxAge: ONE_YEAR });
+  return { error: null };
 }
 
 export async function switchProfile() {

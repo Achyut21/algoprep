@@ -1,10 +1,6 @@
 import Link from "next/link";
-import {
-  createOrPickProfile,
-  getActiveProfile,
-  selectProfile,
-  switchProfile,
-} from "@/app/actions";
+import { getActiveProfile, switchProfile } from "@/app/actions";
+import { ProfilePicker } from "@/app/profile-picker";
 import { FadeIn } from "@/components/fade-in";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,7 +11,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { quizzes } from "@/content/quizzes";
 import { getDb } from "@/db";
 import type { Attempt } from "@/db/schema";
@@ -68,27 +63,23 @@ export default async function HomePage() {
             Who&apos;s taking the quiz today?
           </p>
         </FadeIn>
-        {allProfiles.length > 0 && (
-          <FadeIn className="flex flex-wrap justify-center gap-2" delay={0.1}>
-            {allProfiles.map((p) => (
-              <form key={p.id} action={selectProfile.bind(null, p.id)}>
-                <Button variant="outline" size="lg">
-                  {p.name}
-                </Button>
-              </form>
-            ))}
-          </FadeIn>
-        )}
-        <FadeIn delay={0.2}>
-          <form action={createOrPickProfile} className="flex gap-2">
-            <Input
-              name="name"
-              placeholder="Or type your name…"
-              maxLength={30}
-              required
+        <FadeIn delay={0.1}>
+          {allProfiles.length > 0 ? (
+            <ProfilePicker
+              profiles={allProfiles.map((p) => ({
+                id: p.id,
+                name: p.name,
+                hasPin: p.pinHash !== null,
+              }))}
             />
-            <Button type="submit">Let&apos;s go</Button>
-          </form>
+          ) : (
+            <p className="text-center text-sm text-muted-foreground">
+              No players yet. Add them with{" "}
+              <code className="rounded bg-muted px-1.5 py-0.5">
+                pnpm seed &quot;Name One&quot; &quot;Name Two&quot;
+              </code>
+            </p>
+          )}
         </FadeIn>
       </main>
     );
