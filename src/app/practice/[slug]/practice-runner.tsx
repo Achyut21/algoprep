@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState, useTransition } from "react";
 import { checkAnswer } from "@/app/actions";
 import { CodeBlock } from "@/components/code-block";
+import { QuestionDemo } from "@/components/question-demo";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -150,6 +151,7 @@ export function PracticeRunner({
                   filename={`${question.id}.py`}
                 />
               )}
+              {question.demo && <QuestionDemo name={question.demo} />}
               <div className="grid gap-2">
                 {question.options.map((option, i) => {
                   const isChosen = chosen === i;

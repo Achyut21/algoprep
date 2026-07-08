@@ -15,7 +15,8 @@ export function toClientQuestion({
   topic,
   prompt,
   code,
+  demo,
   options,
 }: Question): ClientQuestion {
-  return { id, topic, prompt, code, options };
+  return { id, topic, prompt, code, demo, options };
 }

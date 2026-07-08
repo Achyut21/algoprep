@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { submitAttempt } from "@/app/actions";
 import { GradingOverlay } from "./grading-overlay";
 import { CodeBlock } from "@/components/code-block";
+import { QuestionDemo } from "@/components/question-demo";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -213,6 +214,7 @@ export function QuizRunner({
                   filename={`${question.id}.py`}
                 />
               )}
+              {question.demo && <QuestionDemo name={question.demo} />}
               <div className="grid gap-2">
                 {question.options.map((option, i) => {
                   const selected = answers[current] === i;

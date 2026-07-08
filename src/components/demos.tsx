@@ -190,7 +190,7 @@ const SHIFT_START = [
   { id: 4, v: 16 },
 ];
 
-export function InsertShiftDemo() {
+export function InsertShiftDemo({ hideCaption = false }: { hideCaption?: boolean }) {
   const [inserted, setInserted] = useState(false);
   useEffect(() => {
     const t = setInterval(() => setInserted((s) => !s), 2100);
@@ -219,11 +219,13 @@ export function InsertShiftDemo() {
           ))}
         </AnimatePresence>
       </div>
-      <Caption>
-        {inserted
-          ? "99 took index 0 — all 4 boxes had to move one spot right: O(n)"
-          : "watch what happens to the other boxes…"}
-      </Caption>
+      {!hideCaption && (
+        <Caption>
+          {inserted
+            ? "99 took index 0 — all 4 boxes had to move one spot right: O(n)"
+            : "watch what happens to the other boxes…"}
+        </Caption>
+      )}
     </Frame>
   );
 }
@@ -333,11 +335,85 @@ export function FunctionMachineDemo() {
   );
 }
 
+/* ── b = a does NOT copy ──────────────────────────────────── */
+
+const REF_STEPS = [
+  "a = [1, 2, 3]",
+  "b = a          # no copy — b points at the SAME list!",
+  "b.append(4)",
+  "print(a)       # [1, 2, 3, 4]  😱",
+];
+
+export function ReferenceCopyDemo() {
+  const [step, setStep] = useState(0);
+  useEffect(() => {
+    const t = setInterval(
+      () => setStep((s) => (s + 1) % REF_STEPS.length),
+      1700
+    );
+    return () => clearInterval(t);
+  }, []);
+  const showB = step >= 1;
+  const appended = step >= 2;
+  return (
+    <Frame>
+      <div className="font-mono text-xs leading-5">
+        {REF_STEPS.map((line, i) => (
+          <p
+            key={i}
+            className={cn(
+              "transition-opacity duration-300",
+              i > step && "opacity-25",
+              i === step && "text-foreground",
+              i < step && "text-muted-foreground"
+            )}
+          >
+            {line}
+          </p>
+        ))}
+      </div>
+      <div className="mt-3 flex items-center gap-4">
+        <div className="flex flex-col gap-1 font-mono text-sm">
+          <span>
+            a <span className="text-primary">→</span>
+          </span>
+          <span
+            className={cn(
+              "transition-opacity duration-300",
+              showB ? "opacity-100" : "opacity-0"
+            )}
+          >
+            b <span className="text-amber">→</span>
+          </span>
+        </div>
+        <div className="flex gap-1.5">
+          {[1, 2, 3].map((v, i) => (
+            <Cell key={i} value={v} index={i} />
+          ))}
+          <div
+            className={cn(
+              "transition-all duration-300",
+              appended ? "opacity-100" : "scale-75 opacity-0"
+            )}
+          >
+            <Cell value={4} index={3} state="hit" />
+          </div>
+        </div>
+      </div>
+      <Caption>
+        {step < 2
+          ? "one list, two name tags pointing at it"
+          : "b changed the shared list — and a sees it. use a[:] for a real copy"}
+      </Caption>
+    </Frame>
+  );
+}
+
 /* ── Halving: why log n is tiny ───────────────────────────── */
 
 const HALVING_STEPS = [16, 8, 4, 2, 1];
 
-export function HalvingDemo() {
+export function HalvingDemo({ hideCaption = false }: { hideCaption?: boolean }) {
   const [step, setStep] = useState(0);
   useEffect(() => {
     const t = setInterval(
@@ -373,10 +449,12 @@ export function HalvingDemo() {
           />
         ))}
       </div>
-      <Caption>
-        cut the pile in half each step: 16 items are gone in just 4 halvings.
-        that&apos;s O(log n) — log₂(16) = 4
-      </Caption>
+      {!hideCaption && (
+        <Caption>
+          cut the pile in half each step: 16 items are gone in just 4
+          halvings. that&apos;s O(log n) — log₂(16) = 4
+        </Caption>
+      )}
     </Frame>
   );
 }

@@ -23,6 +23,11 @@ export const noteDocs: NoteDoc[] = [
     title: "Arrays",
     blurb: "numbered boxes, side by side",
   },
+  {
+    slug: "lists",
+    title: "Python Lists",
+    blurb: "the array's flexible cousin",
+  },
 ];
 
 export const noteSlugs = noteDocs.map((doc) => doc.slug);

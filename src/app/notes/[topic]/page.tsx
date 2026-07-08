@@ -8,6 +8,7 @@ import { isAdmin } from "@/lib/admin";
 import { ArraysNotes } from "../arrays-notes";
 import { BigONotes } from "../big-o-notes";
 import { IntroductionNotes } from "../introduction-notes";
+import { ListsNotes } from "../lists-notes";
 import { PythonNotes } from "../python-notes";
 
 const CONTENT: Record<string, React.ComponentType> = {
@@ -15,6 +16,7 @@ const CONTENT: Record<string, React.ComponentType> = {
   introduction: IntroductionNotes,
   "big-o": BigONotes,
   arrays: ArraysNotes,
+  lists: ListsNotes,
 };
 
 export async function generateMetadata({

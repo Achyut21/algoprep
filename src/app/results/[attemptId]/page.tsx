@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { CodeBlock } from "@/components/code-block";
+import { QuestionDemo } from "@/components/question-demo";
 import { FadeInOnScroll } from "@/components/fade-in";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -108,6 +109,7 @@ export default async function ResultsPage({
                       filename={`${question.id}.py`}
                     />
                   )}
+                  {question.demo && <QuestionDemo name={question.demo} />}
                   <div className="grid gap-2">
                     {question.options.map((option, i) => (
                       <div
