@@ -68,6 +68,7 @@ export function fmtDuration(seconds: number) {
 
 export function fmtDate(d: Date) {
   return d.toLocaleString("en-US", {
+    timeZone: "America/New_York",
     month: "short",
     day: "numeric",
     hour: "numeric",
