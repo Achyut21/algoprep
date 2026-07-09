@@ -335,6 +335,77 @@ export function FunctionMachineDemo() {
   );
 }
 
+/* ── Amortized append: cheap, cheap, cheap … RESIZE! ──────── */
+
+type AmortizedFrame = { count: number; cap: number; resizing?: boolean };
+
+const AMORTIZED_FRAMES: AmortizedFrame[] = [
+  { count: 1, cap: 4 },
+  { count: 2, cap: 4 },
+  { count: 3, cap: 4 },
+  { count: 4, cap: 4 },
+  { count: 4, cap: 8, resizing: true },
+  { count: 5, cap: 8 },
+  { count: 6, cap: 8 },
+  { count: 7, cap: 8 },
+  { count: 8, cap: 8 },
+  { count: 8, cap: 16, resizing: true },
+];
+
+export function AmortizedDemo({ hideCaption = false }: { hideCaption?: boolean }) {
+  const [step, setStep] = useState(0);
+  useEffect(() => {
+    const t = setInterval(
+      () => setStep((s) => (s + 1) % AMORTIZED_FRAMES.length),
+      1100
+    );
+    return () => clearInterval(t);
+  }, []);
+  const frame = AMORTIZED_FRAMES[step];
+  return (
+    <Frame>
+      <p className="font-mono text-xs">
+        my_list.append(<span style={{ color: "var(--syn-number)" }}>x</span>)
+        {"  "}
+        <span
+          className={cn(
+            "transition-colors duration-200",
+            frame.resizing ? "text-amber" : "text-primary"
+          )}
+        >
+          {frame.resizing
+            ? "# FULL! copying everything to a bigger home…"
+            : "# free slot waiting — instant"}
+        </span>
+      </p>
+      <div className="mt-3 flex flex-wrap gap-1">
+        {Array.from({ length: frame.cap }).map((_, i) => (
+          <div
+            key={i}
+            className={cn(
+              "size-4 rounded-[3px] border transition-all duration-300",
+              i < frame.count
+                ? frame.resizing
+                  ? "border-amber bg-amber/25"
+                  : i === frame.count - 1
+                    ? "border-primary bg-primary/40"
+                    : "border-primary/50 bg-primary/15"
+                : "border-border"
+            )}
+          />
+        ))}
+      </div>
+      {!hideCaption && (
+        <Caption>
+          {frame.resizing
+            ? `rare & expensive: all ${frame.count} items copied into a row twice the size — O(n) this one time`
+            : `cheap append #${frame.count} — the resize cost is "paid off" across all these: amortized O(1)`}
+        </Caption>
+      )}
+    </Frame>
+  );
+}
+
 /* ── Dictionary lookup: the key IS the address ────────────── */
 
 const DICT_ENTRIES = [

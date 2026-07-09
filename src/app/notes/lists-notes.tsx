@@ -1,5 +1,5 @@
 import { CodeBlock } from "@/components/code-block";
-import { ReferenceCopyDemo } from "@/components/demos";
+import { AmortizedDemo, ReferenceCopyDemo } from "@/components/demos";
 import { NoteCard, PythonHint, Term, Tldr } from "./note-ui";
 
 export function ListsNotes() {
@@ -129,6 +129,28 @@ export function ListsNotes() {
         <p className="text-muted-foreground">
           Same story as arrays: instant by position, linear when things must
           shift or be searched.
+        </p>
+      </NoteCard>
+
+      <NoteCard title="bonus: WHY append is O(1) — the amortized trick">
+        <p>
+          Here&apos;s a secret: the list keeps some EMPTY slots in reserve.
+          Most appends just drop into a waiting slot — instant. But when the
+          slots run out, Python copies everything into a home twice the size:
+        </p>
+        <AmortizedDemo />
+        <p className="text-muted-foreground">
+          That copy is expensive — O(n) — but RARE, and doubling pushes the
+          next one twice as far away. Spread the rare cost across all the
+          cheap appends and each one averages out to O(1). That averaged cost
+          has a name:{" "}
+          <span className="font-mono text-primary">amortized O(1)</span> —
+          like four friends splitting one pizza bill.
+        </p>
+        <p className="text-muted-foreground">
+          The thinking trick matters more than the word: judge the WHOLE
+          sequence of operations, not the scariest single step. You&apos;ll
+          meet this idea again and again in computer science.
         </p>
       </NoteCard>
 

@@ -192,5 +192,21 @@ export const level3: Quiz = {
       explanation:
         "The key-shortcut only works for KEYS. To find which key holds a given VALUE, you check pair by pair — plain linear search, O(n).",
     },
+    {
+      id: "l3-q16",
+      topic: "Lists",
+      prompt:
+        "The animation shows how a list handles append: usually a free slot is waiting, but once in a while EVERYTHING must be copied into a bigger home. What is the right name for append's overall cost?",
+      demo: "amortized",
+      options: [
+        "O(n) — always assume the worst single step",
+        "Amortized O(1) — the rare expensive copy averages out across many cheap appends",
+        "O(log n) — because the size doubles",
+        "O(0) — appends are free",
+      ],
+      correctIndex: 1,
+      explanation:
+        "Most appends are instant; occasionally a resize costs O(n), but doubling makes resizes rarer and rarer, so the average cost per append stays constant. That's what 'amortized' means: judge the whole sequence, not the scariest single step — like friends splitting one big pizza bill.",
+    },
   ],
 };
