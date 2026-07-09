@@ -1,9 +1,17 @@
 import { level2 } from "./level-2";
+import { level3 } from "./level-3";
 import { milestone1 } from "./milestone-1";
 import { milestone2 } from "./milestone-2";
+import { milestone3 } from "./milestone-3";
 import type { Quiz, Topic } from "./types";
 
-export const quizzes: Quiz[] = [milestone1, milestone2, level2];
+export const quizzes: Quiz[] = [
+  milestone1,
+  milestone2,
+  level2,
+  milestone3,
+  level3,
+];
 
 export function getQuiz(slug: string): Quiz | undefined {
   return quizzes.find((quiz) => quiz.slug === slug);
@@ -15,4 +23,5 @@ export const topicNotes: Record<Topic, string> = {
   "Big O": "big-o",
   Arrays: "arrays",
   Lists: "lists",
+  Dictionaries: "dictionaries",
 };

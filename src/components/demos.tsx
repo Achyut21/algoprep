@@ -335,6 +335,64 @@ export function FunctionMachineDemo() {
   );
 }
 
+/* ── Dictionary lookup: the key IS the address ────────────── */
+
+const DICT_ENTRIES = [
+  { key: "'name'", value: "'Edy'" },
+  { key: "'age'", value: "26" },
+  { key: "'address'", value: "'London'" },
+];
+
+export function KeyLookupDemo() {
+  const [idx, setIdx] = useState(0);
+  useEffect(() => {
+    const t = setInterval(
+      () => setIdx((i) => (i + 1) % DICT_ENTRIES.length),
+      1600
+    );
+    return () => clearInterval(t);
+  }, []);
+  const active = DICT_ENTRIES[idx];
+  return (
+    <Frame>
+      <p className="font-mono text-xs">
+        myDict[<span style={{ color: "var(--syn-string)" }}>{active.key}</span>]
+      </p>
+      <div className="mt-3 space-y-1.5">
+        {DICT_ENTRIES.map((entry, i) => {
+          const hit = i === idx;
+          return (
+            <div
+              key={entry.key}
+              className={cn(
+                "flex items-center gap-2 rounded-md border px-2.5 py-1.5 font-mono text-xs transition-all duration-200",
+                hit ? "border-primary bg-primary/10 box-glow" : "border-border"
+              )}
+            >
+              <span
+                className={cn(hit ? "text-primary" : "text-muted-foreground")}
+              >
+                {entry.key}
+              </span>
+              <span className="text-muted-foreground">:</span>
+              <span className={cn(!hit && "text-muted-foreground")}>
+                {entry.value}
+              </span>
+              {hit && (
+                <span className="ml-auto text-primary">← found instantly</span>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      <Caption>
+        no scanning, no counting boxes — the KEY takes you straight to the
+        value. that&apos;s O(1) lookup
+      </Caption>
+    </Frame>
+  );
+}
+
 /* ── b = a does NOT copy ──────────────────────────────────── */
 
 const REF_STEPS = [

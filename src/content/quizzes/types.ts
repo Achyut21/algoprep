@@ -1,4 +1,9 @@
-export type Topic = "Introduction" | "Big O" | "Arrays" | "Lists";
+export type Topic =
+  | "Introduction"
+  | "Big O"
+  | "Arrays"
+  | "Lists"
+  | "Dictionaries";
 
 export type Question = {
   id: string;

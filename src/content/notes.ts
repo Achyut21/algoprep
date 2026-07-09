@@ -28,6 +28,11 @@ export const noteDocs: NoteDoc[] = [
     title: "Python Lists",
     blurb: "the array's flexible cousin",
   },
+  {
+    slug: "dictionaries",
+    title: "Dictionaries",
+    blurb: "key : value pairs, instant lookup",
+  },
 ];
 
 export const noteSlugs = noteDocs.map((doc) => doc.slug);

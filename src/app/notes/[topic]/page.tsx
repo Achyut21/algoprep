@@ -7,6 +7,7 @@ import { noteDocs } from "@/content/notes";
 import { isAdmin } from "@/lib/admin";
 import { ArraysNotes } from "../arrays-notes";
 import { BigONotes } from "../big-o-notes";
+import { DictionariesNotes } from "../dictionaries-notes";
 import { IntroductionNotes } from "../introduction-notes";
 import { ListsNotes } from "../lists-notes";
 import { PythonNotes } from "../python-notes";
@@ -17,6 +18,7 @@ const CONTENT: Record<string, React.ComponentType> = {
   "big-o": BigONotes,
   arrays: ArraysNotes,
   lists: ListsNotes,
+  dictionaries: DictionariesNotes,
 };
 
 export async function generateMetadata({
