@@ -1,6 +1,6 @@
 import { CodeBlock } from "@/components/code-block";
 import { KeyLookupDemo } from "@/components/demos";
-import { NoteCard, PythonHint, Term, Tldr } from "./note-ui";
+import { ComplexityTable, NoteCard, PythonHint, Term, Tldr } from "./note-ui";
 
 export function DictionariesNotes() {
   return (
@@ -124,35 +124,52 @@ export function DictionariesNotes() {
         </p>
       </NoteCard>
 
-      <NoteCard title="how fast is a dictionary?">
-        <div className="overflow-x-auto">
-          <table className="w-full font-mono text-xs">
-            <thead>
-              <tr className="border-b text-muted-foreground">
-                <th className="py-2 text-left font-medium">operation</th>
-                <th className="py-2 text-left font-medium">cost</th>
-              </tr>
-            </thead>
-            <tbody className="text-sm">
-              <tr className="border-b">
-                <td className="py-2">lookup / add / update by key</td>
-                <td className="py-2 text-primary">O(1) average</td>
-              </tr>
-              <tr className="border-b">
-                <td className="py-2">delete by key</td>
-                <td className="py-2 text-primary">O(1) average</td>
-              </tr>
-              <tr className="border-b">
-                <td className="py-2">search by VALUE</td>
-                <td className="py-2 text-amber">O(n)</td>
-              </tr>
-              <tr>
-                <td className="py-2">memory for n pairs</td>
-                <td className="py-2 text-amber">O(n)</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+      <NoteCard title="every dictionary operation, measured">
+        <ComplexityTable
+          rows={[
+            { op: "create an empty dictionary", time: "O(1)", space: "O(1)" },
+            {
+              op: "create with n pairs",
+              time: "O(n)",
+              space: "O(n)",
+            },
+            {
+              op: "lookup myDict[key] / get(key)",
+              time: "O(1) avg",
+              space: "O(1)",
+              note: "the key IS the address",
+            },
+            { op: "add / update by key", time: "O(1) avg", space: "O(1)" },
+            { op: "'key' in myDict", time: "O(1) avg", space: "O(1)" },
+            {
+              op: "delete by key (pop / del)",
+              time: "O(1) avg",
+              space: "O(1)",
+            },
+            {
+              op: "search by VALUE",
+              time: "O(n)",
+              space: "O(1)",
+              note: "no shortcut — walk every pair",
+            },
+            {
+              op: "traverse (keys / values / items)",
+              time: "O(n)",
+              space: "O(1)",
+            },
+            {
+              op: "copy()",
+              time: "O(n)",
+              space: "O(n)",
+              note: "a full new dictionary",
+            },
+          ]}
+        />
+        <p className="text-muted-foreground">
+          &quot;avg&quot; because in freak cases key lookups can degrade — but
+          in practice, treat by-key operations as O(1). Storing n pairs costs
+          O(n) memory overall.
+        </p>
       </NoteCard>
 
       <NoteCard title="dictionary comprehensions">

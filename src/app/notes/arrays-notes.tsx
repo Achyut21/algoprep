@@ -4,7 +4,7 @@ import {
   InsertShiftDemo,
   LinearSearchDemo,
 } from "@/components/demos";
-import { NoteCard, PythonHint, Term, Tldr } from "./note-ui";
+import { ComplexityTable, NoteCard, PythonHint, Term, Tldr } from "./note-ui";
 
 export function ArraysNotes() {
   return (
@@ -35,51 +35,50 @@ export function ArraysNotes() {
         </p>
       </NoteCard>
 
-      <NoteCard title="the big four operations (1D array)">
-        <div className="overflow-x-auto">
-          <table className="w-full font-mono text-xs">
-            <thead>
-              <tr className="border-b text-muted-foreground">
-                <th className="py-2 text-left font-medium">operation</th>
-                <th className="py-2 text-left font-medium">cost</th>
-                <th className="py-2 text-left font-medium">why</th>
-              </tr>
-            </thead>
-            <tbody className="text-sm">
-              <tr className="border-b">
-                <td className="py-2">access by index</td>
-                <td className="py-2 text-primary">O(1)</td>
-                <td className="py-2 text-xs text-muted-foreground">
-                  address math, no looking
-                </td>
-              </tr>
-              <tr className="border-b">
-                <td className="py-2">search by value</td>
-                <td className="py-2 text-amber">O(n)</td>
-                <td className="py-2 text-xs text-muted-foreground">
-                  check box by box
-                </td>
-              </tr>
-              <tr className="border-b">
-                <td className="py-2">insert</td>
-                <td className="py-2 text-amber">O(n)</td>
-                <td className="py-2 text-xs text-muted-foreground">
-                  boxes shift right to make room
-                </td>
-              </tr>
-              <tr>
-                <td className="py-2">delete</td>
-                <td className="py-2 text-amber">O(n)</td>
-                <td className="py-2 text-xs text-muted-foreground">
-                  boxes shift left to close the gap
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+      <NoteCard title="every 1D operation, measured">
+        <ComplexityTable
+          rows={[
+            { op: "create an empty array", time: "O(1)", space: "O(1)" },
+            {
+              op: "create with n items",
+              time: "O(n)",
+              space: "O(n)",
+              note: "every item needs its own box",
+            },
+            {
+              op: "access by index",
+              time: "O(1)",
+              space: "O(1)",
+              note: "address math, no looking",
+            },
+            {
+              op: "traverse (visit every item)",
+              time: "O(n)",
+              space: "O(1)",
+            },
+            {
+              op: "search by value",
+              time: "O(n)",
+              space: "O(1)",
+              note: "check box by box",
+            },
+            {
+              op: "insert",
+              time: "O(n)",
+              space: "O(1)",
+              note: "boxes shift right to make room",
+            },
+            {
+              op: "delete",
+              time: "O(n)",
+              space: "O(1)",
+              note: "boxes shift left to close the gap",
+            },
+          ]}
+        />
         <p className="text-muted-foreground">
-          Creating an array with n items also takes O(n) <em>space</em> — every
-          item needs its own box.
+          Time = how many steps. Space = how much EXTRA memory the operation
+          needs while it works (the array itself isn&apos;t counted twice).
         </p>
       </NoteCard>
 
@@ -186,6 +185,20 @@ export function ArraysNotes() {
           But visiting EVERY cell (a loop in a loop) costs O(rows × cols) —
           usually written O(mn).
         </p>
+        <ComplexityTable
+          rows={[
+            { op: "create an m×n grid", time: "O(mn)", space: "O(mn)" },
+            { op: "access grid[row][col]", time: "O(1)", space: "O(1)" },
+            { op: "traverse every cell", time: "O(mn)", space: "O(1)" },
+            { op: "search the whole grid", time: "O(mn)", space: "O(1)" },
+            {
+              op: "insert / delete a row or column",
+              time: "O(mn)",
+              space: "O(mn)",
+              note: "numpy builds a whole new array",
+            },
+          ]}
+        />
       </NoteCard>
 
       <NoteCard title="numpy axis (rows or columns?)">

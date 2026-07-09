@@ -1,6 +1,6 @@
 import { CodeBlock } from "@/components/code-block";
 import { AmortizedDemo, ReferenceCopyDemo } from "@/components/demos";
-import { NoteCard, PythonHint, Term, Tldr } from "./note-ui";
+import { ComplexityTable, NoteCard, PythonHint, Term, Tldr } from "./note-ui";
 
 export function ListsNotes() {
   return (
@@ -97,38 +97,48 @@ export function ListsNotes() {
         </p>
       </NoteCard>
 
-      <NoteCard title="how fast is a list?">
-        <div className="overflow-x-auto">
-          <table className="w-full font-mono text-xs">
-            <thead>
-              <tr className="border-b text-muted-foreground">
-                <th className="py-2 text-left font-medium">operation</th>
-                <th className="py-2 text-left font-medium">cost</th>
-              </tr>
-            </thead>
-            <tbody className="text-sm">
-              <tr className="border-b">
-                <td className="py-2">myList[i]</td>
-                <td className="py-2 text-primary">O(1)</td>
-              </tr>
-              <tr className="border-b">
-                <td className="py-2">append at the end</td>
-                <td className="py-2 text-primary">O(1)</td>
-              </tr>
-              <tr className="border-b">
-                <td className="py-2">value in myList (search)</td>
-                <td className="py-2 text-amber">O(n)</td>
-              </tr>
-              <tr>
-                <td className="py-2">insert / delete in the middle</td>
-                <td className="py-2 text-amber">O(n)</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+      <NoteCard title="every list operation, measured">
+        <ComplexityTable
+          rows={[
+            { op: "create an empty list", time: "O(1)", space: "O(1)" },
+            { op: "access myList[i]", time: "O(1)", space: "O(1)" },
+            {
+              op: "append at the end",
+              time: "O(1)",
+              space: "O(1)",
+              note: "amortized — see the next card!",
+            },
+            { op: "pop() the last item", time: "O(1)", space: "O(1)" },
+            {
+              op: "insert / delete / pop(0) anywhere else",
+              time: "O(n)",
+              space: "O(1)",
+              note: "everything after it shifts",
+            },
+            {
+              op: "search: value in myList",
+              time: "O(n)",
+              space: "O(1)",
+            },
+            { op: "traverse (visit every item)", time: "O(n)", space: "O(1)" },
+            {
+              op: "slice myList[a:b] of k items",
+              time: "O(k)",
+              space: "O(k)",
+              note: "builds a new list of the slice",
+            },
+            {
+              op: "copy myList[:]",
+              time: "O(n)",
+              space: "O(n)",
+              note: "a full new list",
+            },
+          ]}
+        />
         <p className="text-muted-foreground">
           Same story as arrays: instant by position, linear when things must
-          shift or be searched.
+          shift or be searched. Space = the EXTRA memory the operation itself
+          uses.
         </p>
       </NoteCard>
 
