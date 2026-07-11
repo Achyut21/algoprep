@@ -33,6 +33,11 @@ export const noteDocs: NoteDoc[] = [
     title: "Dictionaries",
     blurb: "key : value pairs, instant lookup",
   },
+  {
+    slug: "tuples",
+    title: "Tuples",
+    blurb: "lists, but locked",
+  },
 ];
 
 export const noteSlugs = noteDocs.map((doc) => doc.slug);

@@ -11,6 +11,7 @@ import { DictionariesNotes } from "../dictionaries-notes";
 import { IntroductionNotes } from "../introduction-notes";
 import { ListsNotes } from "../lists-notes";
 import { PythonNotes } from "../python-notes";
+import { TuplesNotes } from "../tuples-notes";
 
 const CONTENT: Record<string, React.ComponentType> = {
   python: PythonNotes,
@@ -19,6 +20,7 @@ const CONTENT: Record<string, React.ComponentType> = {
   arrays: ArraysNotes,
   lists: ListsNotes,
   dictionaries: DictionariesNotes,
+  tuples: TuplesNotes,
 };
 
 export async function generateMetadata({

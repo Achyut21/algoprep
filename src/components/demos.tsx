@@ -335,6 +335,90 @@ export function FunctionMachineDemo() {
   );
 }
 
+/* ── Immutability: lists say yes, tuples say NO ───────────── */
+
+const IMMUTABLE_PHASES = [
+  { line: "myList[0] = 99", target: "list", changed: false },
+  { line: "myList[0] = 99", target: "list", changed: true },
+  { line: "myTuple[0] = 99", target: "tuple", changed: false },
+  { line: "myTuple[0] = 99", target: "tuple", error: true, changed: false },
+] as const;
+
+export function ImmutabilityDemo({ hideCaption = false }: { hideCaption?: boolean }) {
+  const [step, setStep] = useState(0);
+  useEffect(() => {
+    const t = setInterval(
+      () => setStep((s) => (s + 1) % IMMUTABLE_PHASES.length),
+      1500
+    );
+    return () => clearInterval(t);
+  }, []);
+  const phase = IMMUTABLE_PHASES[step];
+  const isError = "error" in phase && phase.error;
+  const listValues = phase.target === "list" && phase.changed ? [99, 2, 3] : [1, 2, 3];
+  return (
+    <Frame>
+      <p className="font-mono text-xs">
+        {phase.line}{" "}
+        {isError && (
+          <span className="text-destructive">
+            # TypeError: &apos;tuple&apos; object does not support item
+            assignment
+          </span>
+        )}
+        {phase.target === "list" && phase.changed && (
+          <span className="text-primary"># sure, done!</span>
+        )}
+      </p>
+      <div className="mt-3 space-y-2">
+        <div className="flex items-center gap-2">
+          <span className="w-16 shrink-0 font-mono text-xs text-muted-foreground">
+            list
+          </span>
+          <div className="flex gap-1.5">
+            {listValues.map((v, i) => (
+              <Cell
+                key={i}
+                value={v}
+                index={i}
+                state={
+                  phase.target === "list" && phase.changed && i === 0
+                    ? "hit"
+                    : "idle"
+                }
+              />
+            ))}
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="w-16 shrink-0 font-mono text-xs text-muted-foreground">
+            tuple 🔒
+          </span>
+          <div
+            className={cn(
+              "flex gap-1.5 rounded-lg transition-all duration-300",
+              isError && "ring-2 ring-destructive"
+            )}
+          >
+            {[1, 2, 3].map((v, i) => (
+              <Cell key={i} value={v} index={i} state={isError ? "dim" : "idle"} />
+            ))}
+          </div>
+        </div>
+      </div>
+      {!hideCaption && (
+        <Caption>
+          {isError
+            ? "tuples are IMMUTABLE — once built, nothing can be changed, added or removed"
+            : phase.changed
+              ? "lists are mutable: change whatever you like"
+              : "same boxes, very different rules…"}
+        </Caption>
+      )}
+    </Frame>
+  );
+}
+
 /* ── Amortized append: cheap, cheap, cheap … RESIZE! ──────── */
 
 type AmortizedFrame = { count: number; cap: number; resizing?: boolean };

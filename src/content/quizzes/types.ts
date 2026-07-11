@@ -3,7 +3,8 @@ export type Topic =
   | "Big O"
   | "Arrays"
   | "Lists"
-  | "Dictionaries";
+  | "Dictionaries"
+  | "Tuples";
 
 export type Question = {
   id: string;
