@@ -23,6 +23,8 @@ export type Quiz = {
   title: string;
   description: string;
   sections: string[];
+  /** Exam-only quiz: no practice mode, so the bank can't be farmed. */
+  noPractice?: boolean;
   questions: Question[];
 };
 

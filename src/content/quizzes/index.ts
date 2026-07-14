@@ -1,6 +1,7 @@
 import { level2 } from "./level-2";
 import { level3 } from "./level-3";
 import { level4 } from "./level-4";
+import { level5 } from "./level-5";
 import { milestone1 } from "./milestone-1";
 import { milestone2 } from "./milestone-2";
 import { milestone3 } from "./milestone-3";
@@ -15,6 +16,7 @@ export const quizzes: Quiz[] = [
   level3,
   milestone4,
   level4,
+  level5,
 ];
 
 export function getQuiz(slug: string): Quiz | undefined {

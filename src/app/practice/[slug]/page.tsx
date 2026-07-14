@@ -11,7 +11,7 @@ export default async function PracticePage({
 }) {
   const { slug } = await params;
   const quiz = getQuiz(slug);
-  if (!quiz) notFound();
+  if (!quiz || quiz.noPractice) notFound();
 
   const profile = await getActiveProfile();
   if (!profile) redirect("/");

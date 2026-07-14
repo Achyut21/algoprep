@@ -180,9 +180,11 @@ export default async function HomePage() {
                       {stats.tries === 1 ? "run" : "runs"}
                     </span>
                   )}
-                  <Button asChild variant="outline" className="font-mono">
-                    <Link href={`/practice/${quiz.slug}`}>practice</Link>
-                  </Button>
+                  {!quiz.noPractice && (
+                    <Button asChild variant="outline" className="font-mono">
+                      <Link href={`/practice/${quiz.slug}`}>practice</Link>
+                    </Button>
+                  )}
                   {lockedSlugs.has(quiz.slug) ? (
                     <Button disabled className="font-mono">
                       🔒 exam locked
