@@ -110,6 +110,44 @@ export default async function ResultsPage({
                     />
                   )}
                   {question.demo && <QuestionDemo name={question.demo} />}
+                  {question.blankAnswers ? (
+                    <div className="grid gap-2">
+                      {answer?.answerText ? (
+                        <div
+                          className={cn(
+                            "flex items-start gap-3 rounded-lg border p-3 font-mono text-sm",
+                            answer.isCorrect
+                              ? "border-primary/50 bg-primary/10"
+                              : "border-destructive/50 bg-destructive/10"
+                          )}
+                        >
+                          <span>{answer.answerText}</span>
+                          <span
+                            className={cn(
+                              "ml-auto shrink-0 text-xs font-medium",
+                              answer.isCorrect
+                                ? "text-primary"
+                                : "text-destructive"
+                            )}
+                          >
+                            {answer.isCorrect ? "✓ your answer" : "✗ your answer"}
+                          </span>
+                        </div>
+                      ) : (
+                        <p className="font-mono text-sm text-muted-foreground">
+                          ∅ no answer given
+                        </p>
+                      )}
+                      {!answer?.isCorrect && (
+                        <div className="flex items-start gap-3 rounded-lg border border-primary/50 bg-primary/10 p-3 font-mono text-sm">
+                          <span>{question.blankAnswers[0]}</span>
+                          <span className="ml-auto shrink-0 text-xs font-medium text-primary">
+                            ✓ correct answer
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
                   <div className="grid gap-2">
                     {question.options.map((option, i) => (
                       <div
@@ -144,6 +182,7 @@ export default async function ResultsPage({
                       </p>
                     )}
                   </div>
+                  )}
                   <div className="rounded-lg bg-muted/50 p-3 text-sm text-muted-foreground">
                     <span className="font-mono font-medium text-primary">
                       # why:{" "}

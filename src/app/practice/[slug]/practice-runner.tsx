@@ -9,6 +9,7 @@ import { QuestionDemo } from "@/components/question-demo";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import type { ClientQuestion } from "@/content/quizzes/types";
 import { cn } from "@/lib/utils";
@@ -17,6 +18,7 @@ const LETTERS = ["A", "B", "C", "D"];
 
 type Verdict = {
   correctIndex: number;
+  correctAnswer: string | null;
   isCorrect: boolean;
   explanation: string;
 };
@@ -32,6 +34,7 @@ export function PracticeRunner({
 }) {
   const [current, setCurrent] = useState(0);
   const [chosen, setChosen] = useState<number | null>(null);
+  const [typed, setTyped] = useState("");
   const [verdict, setVerdict] = useState<Verdict | null>(null);
   const [right, setRight] = useState(0);
   const [done, setDone] = useState(false);
@@ -46,6 +49,20 @@ export function PracticeRunner({
       const result = await checkAnswer({
         questionId: question.id,
         chosenIndex: optionIndex,
+        answerText: null,
+      });
+      setVerdict(result);
+      if (result.isCorrect) setRight((r) => r + 1);
+    });
+  }
+
+  function checkTyped() {
+    if (verdict || isPending || typed.trim() === "") return;
+    startTransition(async () => {
+      const result = await checkAnswer({
+        questionId: question.id,
+        chosenIndex: null,
+        answerText: typed,
       });
       setVerdict(result);
       if (result.isCorrect) setRight((r) => r + 1);
@@ -59,6 +76,7 @@ export function PracticeRunner({
     }
     setCurrent((c) => c + 1);
     setChosen(null);
+    setTyped("");
     setVerdict(null);
   }
 
@@ -152,6 +170,31 @@ export function PracticeRunner({
                 />
               )}
               {question.demo && <QuestionDemo name={question.demo} />}
+              {question.blank && (
+                <form
+                  className="flex gap-2"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    checkTyped();
+                  }}
+                >
+                  <Input
+                    value={typed}
+                    onChange={(e) => setTyped(e.target.value)}
+                    placeholder="type your answer…"
+                    maxLength={100}
+                    disabled={verdict !== null}
+                    className="font-mono"
+                  />
+                  <Button
+                    type="submit"
+                    disabled={verdict !== null || isPending || typed.trim() === ""}
+                    className="font-mono"
+                  >
+                    check
+                  </Button>
+                </form>
+              )}
               <div className="grid gap-2">
                 {question.options.map((option, i) => {
                   const isChosen = chosen === i;
@@ -220,6 +263,11 @@ export function PracticeRunner({
                     >
                       {verdict.isCorrect ? "✓ correct! " : "✗ not quite. "}
                     </span>
+                    {!verdict.isCorrect && verdict.correctAnswer && (
+                      <span className="font-mono text-primary">
+                        the answer: {verdict.correctAnswer} —{" "}
+                      </span>
+                    )}
                     {verdict.explanation}
                   </div>
                   <div className="flex justify-end">

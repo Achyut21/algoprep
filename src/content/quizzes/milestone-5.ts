@@ -52,14 +52,11 @@ export const milestone5: Quiz = {
     {
       id: "m5-q04",
       topic: "OOP",
-      prompt: "Which line correctly STARTS a class definition?",
-      options: [
-        "def Dog:",
-        "class Dog:",
-        "object Dog:",
-        "Dog = class()",
-      ],
-      correctIndex: 1,
+      prompt: "Fill in the blank: which KEYWORD starts this blueprint?",
+      code: "____ Dog:\n    def __init__(self, name):\n        self.name = name",
+      options: [],
+      correctIndex: 0,
+      blankAnswers: ["class"],
       explanation:
         "The class keyword starts the blueprint, just like def starts a function. By convention class names are Capitalized: Dog, Cousin, LinkedList.",
     },
@@ -95,25 +92,23 @@ export const milestone5: Quiz = {
     {
       id: "m5-q07",
       topic: "OOP",
-      prompt: "Which line actually CREATES an object?",
-      code: "class Dog:\n    def __init__(self, name):\n        self.name = name",
-      options: [
-        "class Dog:",
-        "def __init__(self, name):",
-        "d = Dog('Rex')",
-        "self.name = name",
-      ],
-      correctIndex: 2,
+      prompt:
+        "Fill in the blank to BUILD one dog object from the blueprint:",
+      code: "class Dog:\n    def __init__(self, name):\n        self.name = name\n\nd = ____('Rex')",
+      options: [],
+      correctIndex: 0,
+      blankAnswers: ["Dog"],
       explanation:
         "Calling the class like a function — Dog('Rex') — is the construction moment: Python builds the object, runs __init__ with name='Rex', and hands the finished object to d.",
     },
     {
       id: "m5-q08",
       topic: "OOP",
-      prompt: "What does this print?",
-      code: "class Dog:\n    def __init__(self, name):\n        self.name = name\n\nd = Dog('Rex')\nprint(d.name)",
-      options: ["name", "Rex", "self.name", "an error"],
-      correctIndex: 1,
+      prompt: "Fill in the blank so this prints Rex:",
+      code: "class Dog:\n    def __init__(self, name):\n        self.name = name\n\nd = Dog('Rex')\nprint(d.____)",
+      options: [],
+      correctIndex: 0,
+      blankAnswers: ["name"],
       explanation:
         "The dot reaches into the object: d.name asks 'hey d, what's your name attribute?' — 'Rex'. Same dot you've used all along with .append() and .keys().",
     },
@@ -144,14 +139,12 @@ export const milestone5: Quiz = {
     {
       id: "m5-q11",
       topic: "OOP",
-      prompt: "How do you define a METHOD (an action) inside a class?",
-      options: [
-        "def bark():  — same as a normal function",
-        "def bark(self):  — with self as the first parameter",
-        "method bark(self):",
-        "bark = def(self):",
-      ],
-      correctIndex: 1,
+      prompt:
+        "Every method's FIRST parameter — fill in the blank:",
+      code: "class Dog:\n    def bark(____):\n        return 'woof'",
+      options: [],
+      correctIndex: 0,
+      blankAnswers: ["self"],
       explanation:
         "A method is just a function that lives inside a class — but it must accept self first, so it knows WHICH object it's acting on.",
     },
@@ -188,15 +181,12 @@ export const milestone5: Quiz = {
     {
       id: "m5-q14",
       topic: "OOP",
-      prompt: "What does this print?",
-      code: "class Dog:\n    def __init__(self, name):\n        self.name = name\n\nd = Dog('Rex')\nprint(type(d))",
-      options: [
-        "<class 'Dog'> style output — the object's class",
-        "<class 'str'>",
-        "'Rex'",
-        "<class 'object'>",
-      ],
+      prompt:
+        "Fill in the built-in function that reveals which class built an object:",
+      code: "class Dog:\n    def __init__(self, name):\n        self.name = name\n\nd = Dog('Rex')\nprint(____(d))   # <class '__main__.Dog'>",
+      options: [],
       correctIndex: 0,
+      blankAnswers: ["type"],
       explanation:
         "type() tells you what blueprint built the thing: for d that's the Dog class (shown as <class '__main__.Dog'>). Your own classes become types, just like int and list.",
     },
@@ -228,27 +218,24 @@ export const milestone5: Quiz = {
     {
       id: "m5-q17",
       topic: "OOP",
-      prompt: "Can you change an object's attribute after it's created?",
+      prompt:
+        "True or false: after an object is created, d.name = 'Max' successfully UPDATES its attribute.",
       code: "d = Dog('Rex')\nd.name = 'Max'",
-      options: [
-        "No — attributes are locked like tuples",
-        "Yes — objects are mutable; assignment updates the attribute",
-        "Only inside __init__",
-        "Only with a special rename() method",
-      ],
-      correctIndex: 1,
+      options: ["True", "False"],
+      correctIndex: 0,
       explanation:
-        "Plain assignment through the dot updates the attribute — objects behave like lists and dicts here (mutable), not like tuples.",
+        "True — plain assignment through the dot updates the attribute. Objects behave like lists and dicts here (mutable), not like tuples.",
     },
     {
       id: "m5-q18",
       topic: "OOP",
-      prompt: "A CLASS attribute — what does this print?",
+      prompt:
+        "True or false: legs is a CLASS attribute here, so every Dog object shares one value — this prints 4 4.",
       code: "class Dog:\n    legs = 4          # defined on the CLASS\n\na = Dog()\nb = Dog()\nprint(a.legs, b.legs)",
-      options: ["4 4", "4 0", "an error — no __init__", "None None"],
+      options: ["True", "False"],
       correctIndex: 0,
       explanation:
-        "legs lives on the class itself, so EVERY Dog shares it — both read 4. (And yes, a class without __init__ is legal; Python just builds an empty object.) That's the Class Attributes lecture in one snippet.",
+        "True — legs lives on the class itself, so EVERY Dog reads the same 4. (And yes, a class without __init__ is legal; Python just builds an empty object.)",
     },
     {
       id: "m5-q19",
@@ -328,46 +315,34 @@ export const milestone5: Quiz = {
     {
       id: "m5-q26",
       topic: "OOP",
-      prompt: "Two identical-looking objects — what does this print?",
+      prompt:
+        "True or false: this prints True, because both dogs have the name 'Rex'.",
       code: "class Dog:\n    def __init__(self, name):\n        self.name = name\n\na = Dog('Rex')\nb = Dog('Rex')\nprint(a == b)",
-      options: [
-        "True — same name means equal",
-        "False — they are two DIFFERENT objects, and default == checks identity",
-        "'Rex'",
-        "an error",
-      ],
+      options: ["True", "False"],
       correctIndex: 1,
       explanation:
-        "Two builds from the same blueprint are still two separate objects (different ids!), and for your own classes == defaults to 'same object?'. Same lesson id() taught with list copies.",
+        "False — two builds from the same blueprint are still two separate objects (different ids!), and for your own classes == defaults to 'same object?'. Same lesson id() taught with list copies.",
     },
     {
       id: "m5-q27",
       topic: "OOP",
-      prompt: "What does printing a plain object show?",
+      prompt:
+        "True or false: printing a plain object shows a neat summary of its attributes, like {'name': 'Rex'}.",
       code: "class Dog:\n    def __init__(self, name):\n        self.name = name\n\nd = Dog('Rex')\nprint(d)",
-      options: [
-        "Rex",
-        "{'name': 'Rex'}",
-        "Something like <__main__.Dog object at 0x104f3b3d0>",
-        "Dog('Rex')",
-      ],
-      correctIndex: 2,
+      options: ["True", "False"],
+      correctIndex: 1,
       explanation:
-        "Python doesn't know how you'd like a Dog displayed, so it prints the class name and the object's memory address. (Later you'll learn __str__ to make this pretty.)",
+        "False — Python doesn't know how you'd like a Dog displayed, so it prints the class name and a memory address: <__main__.Dog object at 0x…>. (Later you'll learn __str__ to make this pretty.)",
     },
     {
       id: "m5-q28",
       topic: "OOP",
-      prompt: "Which statement about attributes vs methods is correct?",
-      options: [
-        "Attributes are what the object KNOWS; methods are what the object DOES",
-        "Attributes run code; methods store data",
-        "They're interchangeable words for the same thing",
-        "Methods can't use attributes",
-      ],
+      prompt:
+        "True or false: attributes are what an object KNOWS, and methods are what it DOES.",
+      options: ["True", "False"],
       correctIndex: 0,
       explanation:
-        "d.name is knowledge (data), d.bark() is action (behavior). Methods usually work ON the attributes — that pairing is the entire point of a class.",
+        "True — d.name is knowledge (data), d.bark() is action (behavior). Methods usually work ON the attributes; that pairing is the entire point of a class.",
     },
     {
       id: "m5-q29",

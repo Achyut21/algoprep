@@ -111,6 +111,7 @@ export type QuestionStat = {
   missPct: number;
   skips: number;
   topWrong: { index: number; count: number } | null;
+  topWrongText: { text: string; count: number } | null;
 };
 
 /** Per-question miss stats, hardest first. Works for one player or everyone. */
@@ -130,6 +131,7 @@ export function questionDifficulty(
     if (!question) continue;
     const misses = rows.filter((r) => !r.isCorrect);
     const wrongPicks = new Map<number, number>();
+    const wrongTexts = new Map<string, number>();
     for (const miss of misses) {
       if (miss.chosenIndex !== null) {
         wrongPicks.set(
@@ -137,15 +139,26 @@ export function questionDifficulty(
           (wrongPicks.get(miss.chosenIndex) ?? 0) + 1
         );
       }
+      if (miss.answerText) {
+        const text = miss.answerText.trim().toLowerCase();
+        wrongTexts.set(text, (wrongTexts.get(text) ?? 0) + 1);
+      }
     }
     const topWrong = [...wrongPicks.entries()].sort((a, b) => b[1] - a[1])[0];
+    const topWrongText = [...wrongTexts.entries()].sort(
+      (a, b) => b[1] - a[1]
+    )[0];
     stats.push({
       question,
       total: rows.length,
       misses: misses.length,
       missPct: pctOf(misses.length, rows.length),
-      skips: misses.filter((r) => r.chosenIndex === null).length,
+      skips: misses.filter((r) => r.chosenIndex === null && !r.answerText)
+        .length,
       topWrong: topWrong ? { index: topWrong[0], count: topWrong[1] } : null,
+      topWrongText: topWrongText
+        ? { text: topWrongText[0], count: topWrongText[1] }
+        : null,
     });
   }
   return stats.sort((a, b) => b.missPct - a.missPct || b.total - a.total);

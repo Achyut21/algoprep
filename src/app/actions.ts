@@ -8,6 +8,7 @@ import { getQuiz, quizzes } from "@/content/quizzes";
 import { getDb } from "@/db";
 import { attemptAnswers, attempts, profiles } from "@/db/schema";
 import { hashPin } from "@/lib/pin";
+import { matchesBlank } from "@/lib/quiz-utils";
 import { activeProfileId, PROFILE_COOKIE } from "@/lib/session";
 
 const ONE_YEAR = 60 * 60 * 24 * 365;
@@ -64,6 +65,7 @@ const submitSchema = z.object({
     z.object({
       questionId: z.string(),
       chosenIndex: z.number().int().min(0).max(3).nullable(),
+      answerText: z.string().max(100).nullable().optional(),
     })
   ),
 });
@@ -77,17 +79,16 @@ export async function submitAttempt(input: z.infer<typeof submitSchema>) {
   const profile = await getActiveProfile();
   if (!profile) redirect("/");
 
-  const chosenByQuestion = new Map(
-    answers.map((a) => [a.questionId, a.chosenIndex])
-  );
+  const byQuestion = new Map(answers.map((a) => [a.questionId, a]));
 
   const graded = quiz.questions.map((question) => {
-    const chosenIndex = chosenByQuestion.get(question.id) ?? null;
-    return {
-      questionId: question.id,
-      chosenIndex,
-      isCorrect: chosenIndex === question.correctIndex,
-    };
+    const answer = byQuestion.get(question.id);
+    const chosenIndex = answer?.chosenIndex ?? null;
+    const answerText = answer?.answerText ?? null;
+    const isCorrect = question.blankAnswers
+      ? answerText !== null && matchesBlank(question.blankAnswers, answerText)
+      : chosenIndex === question.correctIndex;
+    return { questionId: question.id, chosenIndex, answerText, isCorrect };
   });
 
   const score = graded.filter((g) => g.isCorrect).length;
@@ -113,18 +114,30 @@ export async function submitAttempt(input: z.infer<typeof submitSchema>) {
 
 const checkSchema = z.object({
   questionId: z.string(),
-  chosenIndex: z.number().int().min(0).max(3),
+  chosenIndex: z.number().int().min(0).max(3).nullable(),
+  answerText: z.string().max(100).nullable().optional(),
 });
 
 /** Practice mode: reveal the answer for ONE question after the player commits a pick. */
 export async function checkAnswer(input: z.infer<typeof checkSchema>) {
-  const { questionId, chosenIndex } = checkSchema.parse(input);
+  const { questionId, chosenIndex, answerText } = checkSchema.parse(input);
   const question = quizzes
     .flatMap((quiz) => quiz.questions)
     .find((q) => q.id === questionId);
   if (!question) throw new Error(`Unknown question: ${questionId}`);
+
+  if (question.blankAnswers) {
+    return {
+      correctIndex: -1,
+      correctAnswer: question.blankAnswers[0],
+      isCorrect:
+        answerText != null && matchesBlank(question.blankAnswers, answerText),
+      explanation: question.explanation,
+    };
+  }
   return {
     correctIndex: question.correctIndex,
+    correctAnswer: null,
     isCorrect: chosenIndex === question.correctIndex,
     explanation: question.explanation,
   };

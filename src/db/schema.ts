@@ -57,6 +57,8 @@ export const attemptAnswers = pgTable("attempt_answers", {
     .references(() => attempts.id),
   questionId: text("question_id").notNull(),
   chosenIndex: integer("chosen_index"),
+  // typed answer for fill-in-the-blank questions
+  answerText: text("answer_text"),
   isCorrect: boolean("is_correct").notNull(),
 });
 

@@ -17,6 +17,21 @@ export function toClientQuestion({
   code,
   demo,
   options,
+  blankAnswers,
 }: Question): ClientQuestion {
-  return { id, topic, prompt, code, demo, options };
+  return {
+    id,
+    topic,
+    prompt,
+    code,
+    demo,
+    options: blankAnswers ? [] : options,
+    blank: blankAnswers ? true : undefined,
+  };
+}
+
+/** Forgiving comparison for typed answers: trim + lowercase. */
+export function matchesBlank(accepted: string[], typed: string) {
+  const normalized = typed.trim().toLowerCase();
+  return accepted.some((answer) => answer.trim().toLowerCase() === normalized);
 }

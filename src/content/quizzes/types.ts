@@ -16,6 +16,9 @@ export type Question = {
   demo?: string;
   options: string[];
   correctIndex: number;
+  /** Present = fill-in-the-blank: the kid TYPES the answer (options are ignored).
+   *  Compared case-insensitively after trimming; list accepted variants. */
+  blankAnswers?: string[];
   explanation: string;
 };
 
@@ -30,4 +33,10 @@ export type Quiz = {
 };
 
 /** Question shape that is safe to send to the browser during the exam. */
-export type ClientQuestion = Omit<Question, "correctIndex" | "explanation">;
+export type ClientQuestion = Omit<
+  Question,
+  "correctIndex" | "explanation" | "blankAnswers"
+> & {
+  /** true = fill-in-the-blank (typed answer); the accepted answers stay server-side */
+  blank?: boolean;
+};

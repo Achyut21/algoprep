@@ -10,6 +10,7 @@ import { QuestionDemo } from "@/components/question-demo";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
@@ -31,10 +32,17 @@ const slideVariants = {
   exit: (direction: number) => ({ x: direction * -48, opacity: 0 }),
 };
 
+/** number = chosen option, string = typed blank answer */
+type Answer = number | string | null;
+
 type SavedState = {
   startedAt: number;
-  picks: Record<string, number>;
+  picks: Record<string, number | string>;
 };
+
+function isAnswered(a: Answer) {
+  return a !== null && a !== "";
+}
 
 function fmtElapsed(seconds: number) {
   const m = Math.floor(seconds / 60);
@@ -55,7 +63,7 @@ export function QuizRunner({
 }) {
   const storageKey = `algoprep:${quizSlug}:${profileId}`;
 
-  const [answers, setAnswers] = useState<(number | null)[]>(
+  const [answers, setAnswers] = useState<Answer[]>(
     Array(questions.length).fill(null)
   );
   const [[current, direction], setNav] = useState<[number, number]>([0, 0]);
@@ -86,19 +94,20 @@ export function QuizRunner({
   }, [storageKey]);
 
   const question = questions[current];
-  const answered = answers.filter((a) => a !== null).length;
+  const answered = answers.filter(isAnswered).length;
   const unanswered = questions.length - answered;
 
   function goTo(index: number) {
     setNav(([c]) => [index, index > c ? 1 : -1]);
   }
 
-  function choose(questionIndex: number, optionIndex: number) {
+  function setAnswer(questionIndex: number, value: Answer) {
     setAnswers((prev) => {
-      const next = prev.map((a, i) => (i === questionIndex ? optionIndex : a));
-      const picks: Record<string, number> = {};
+      const next = prev.map((a, i) => (i === questionIndex ? value : a));
+      const picks: Record<string, number | string> = {};
       questions.forEach((q, i) => {
-        if (next[i] !== null) picks[q.id] = next[i];
+        const a = next[i];
+        if (isAnswered(a)) picks[q.id] = a as number | string;
       });
       localStorage.setItem(
         storageKey,
@@ -116,10 +125,15 @@ export function QuizRunner({
         await submitAttempt({
           quizSlug,
           durationSeconds: Math.floor((Date.now() - startedAt.current) / 1000),
-          answers: questions.map((q, i) => ({
-            questionId: q.id,
-            chosenIndex: answers[i],
-          })),
+          answers: questions.map((q, i) => {
+            const a = answers[i];
+            return {
+              questionId: q.id,
+              chosenIndex: typeof a === "number" ? a : null,
+              answerText:
+                typeof a === "string" && a.trim() !== "" ? a : null,
+            };
+          }),
         });
       } catch (error) {
         if (
@@ -130,9 +144,10 @@ export function QuizRunner({
           throw error;
         }
         // Put the answers back so a reload after a failed submit loses nothing.
-        const picks: Record<string, number> = {};
+        const picks: Record<string, number | string> = {};
         questions.forEach((q, i) => {
-          if (answers[i] !== null) picks[q.id] = answers[i];
+          const a = answers[i];
+          if (isAnswered(a)) picks[q.id] = a as number | string;
         });
         localStorage.setItem(
           storageKey,
@@ -215,6 +230,24 @@ export function QuizRunner({
                 />
               )}
               {question.demo && <QuestionDemo name={question.demo} />}
+              {question.blank && (
+                <div className="space-y-2">
+                  <Input
+                    value={
+                      typeof answers[current] === "string"
+                        ? (answers[current] as string)
+                        : ""
+                    }
+                    onChange={(e) => setAnswer(current, e.target.value)}
+                    placeholder="type your answer…"
+                    maxLength={100}
+                    className="font-mono"
+                  />
+                  <p className="font-mono text-xs text-muted-foreground">
+                    fill in the blank — spelling counts, capitals don&apos;t
+                  </p>
+                </div>
+              )}
               <div className="grid gap-2">
                 {question.options.map((option, i) => {
                   const selected = answers[current] === i;
@@ -222,7 +255,7 @@ export function QuizRunner({
                     <motion.button
                       key={i}
                       type="button"
-                      onClick={() => choose(current, i)}
+                      onClick={() => setAnswer(current, i)}
                       whileHover={{ scale: 1.01 }}
                       whileTap={{ scale: 0.98 }}
                       className={cn(
@@ -307,7 +340,7 @@ export function QuizRunner({
             className={cn(
               "flex h-8 items-center justify-center rounded-md border font-mono text-xs transition-colors",
               i === current && "ring-2 ring-primary",
-              answers[i] !== null
+              isAnswered(answers[i])
                 ? "border-primary/50 bg-primary/15 text-primary"
                 : "border-border text-muted-foreground hover:bg-muted"
             )}

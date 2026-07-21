@@ -222,7 +222,8 @@ export default async function AdminPage() {
         ) : (
           <Card>
             <CardContent className="divide-y divide-border">
-              {hardest.map(({ question, missPct, total, skips, topWrong }) => (
+              {hardest.map(
+                ({ question, missPct, total, skips, topWrong, topWrongText }) => (
                 <div
                   key={question.id}
                   className="space-y-2 py-4 first:pt-2 last:pb-2"
@@ -254,10 +255,13 @@ export default async function AdminPage() {
                           ? question.options[topWrong.index].slice(0, 44) + "…"
                           : question.options[topWrong.index]
                       }” ×${topWrong.count}`}
+                    {topWrongText &&
+                      ` · most-typed wrong: “${topWrongText.text}” ×${topWrongText.count}`}
                     {skips > 0 && ` · skipped ×${skips}`}
                   </p>
                 </div>
-              ))}
+                )
+              )}
             </CardContent>
           </Card>
         )}
