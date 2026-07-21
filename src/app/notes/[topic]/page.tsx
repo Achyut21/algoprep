@@ -10,6 +10,7 @@ import { BigONotes } from "../big-o-notes";
 import { DictionariesNotes } from "../dictionaries-notes";
 import { IntroductionNotes } from "../introduction-notes";
 import { ListsNotes } from "../lists-notes";
+import { OopNotes } from "../oop-notes";
 import { PythonNotes } from "../python-notes";
 import { TuplesNotes } from "../tuples-notes";
 
@@ -21,6 +22,7 @@ const CONTENT: Record<string, React.ComponentType> = {
   lists: ListsNotes,
   dictionaries: DictionariesNotes,
   tuples: TuplesNotes,
+  oop: OopNotes,
 };
 
 export async function generateMetadata({

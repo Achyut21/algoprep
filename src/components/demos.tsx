@@ -335,6 +335,63 @@ export function FunctionMachineDemo() {
   );
 }
 
+/* ── Class = blueprint, objects = things built from it ────── */
+
+const INSTANCES = [
+  { name: "'Rohan'", age: 13 },
+  { name: "'Ana'", age: 11 },
+];
+
+export function ClassBlueprintDemo() {
+  const [step, setStep] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setStep((s) => (s + 1) % 4), 1400);
+    return () => clearInterval(t);
+  }, []);
+  const built = Math.min(step, INSTANCES.length);
+  return (
+    <Frame>
+      <div className="flex flex-wrap items-start gap-4">
+        <div className="rounded-md border border-cyan/50 bg-cyan/10 p-3 font-mono text-xs leading-5">
+          <p style={{ color: "var(--syn-keyword)" }}>class Cousin:</p>
+          <p className="text-muted-foreground">{"    "}name</p>
+          <p className="text-muted-foreground">{"    "}age</p>
+          <p className="text-muted-foreground">{"    "}greet()</p>
+        </div>
+        <span className="self-center font-mono text-muted-foreground">→</span>
+        <div className="flex gap-2">
+          {INSTANCES.map((inst, i) => (
+            <div
+              key={i}
+              className={cn(
+                "rounded-md border p-3 font-mono text-xs leading-5 transition-all duration-300",
+                i < built
+                  ? "border-primary/60 bg-primary/10 opacity-100"
+                  : "scale-90 opacity-0"
+              )}
+            >
+              <p className="text-primary">Cousin(…)</p>
+              <p>
+                name: <span style={{ color: "var(--syn-string)" }}>{inst.name}</span>
+              </p>
+              <p>
+                age: <span style={{ color: "var(--syn-number)" }}>{inst.age}</span>
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+      <Caption>
+        {built === 0
+          ? "the class is only a BLUEPRINT — it stores nothing yet"
+          : built === 1
+            ? "Cousin('Rohan', 13) stamps out an object with its OWN values"
+            : "one blueprint, many independent objects — each with its own data"}
+      </Caption>
+    </Frame>
+  );
+}
+
 /* ── Immutability: lists say yes, tuples say NO ───────────── */
 
 const IMMUTABLE_PHASES = [

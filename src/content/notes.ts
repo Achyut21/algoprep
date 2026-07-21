@@ -38,6 +38,11 @@ export const noteDocs: NoteDoc[] = [
     title: "Tuples",
     blurb: "lists, but locked",
   },
+  {
+    slug: "oop",
+    title: "OOP Basics",
+    blurb: "blueprints and the objects they build",
+  },
 ];
 
 export const noteSlugs = noteDocs.map((doc) => doc.slug);

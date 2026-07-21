@@ -6,6 +6,7 @@ import { milestone1 } from "./milestone-1";
 import { milestone2 } from "./milestone-2";
 import { milestone3 } from "./milestone-3";
 import { milestone4 } from "./milestone-4";
+import { milestone5 } from "./milestone-5";
 import type { Quiz, Topic } from "./types";
 
 export const quizzes: Quiz[] = [
@@ -17,6 +18,7 @@ export const quizzes: Quiz[] = [
   milestone4,
   level4,
   level5,
+  milestone5,
 ];
 
 export function getQuiz(slug: string): Quiz | undefined {
@@ -31,4 +33,5 @@ export const topicNotes: Record<Topic, string> = {
   Lists: "lists",
   Dictionaries: "dictionaries",
   Tuples: "tuples",
+  OOP: "oop",
 };

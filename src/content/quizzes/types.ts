@@ -4,7 +4,8 @@ export type Topic =
   | "Arrays"
   | "Lists"
   | "Dictionaries"
-  | "Tuples";
+  | "Tuples"
+  | "OOP";
 
 export type Question = {
   id: string;
