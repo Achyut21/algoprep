@@ -16,7 +16,9 @@ export default async function PracticePage({
   const profile = await getActiveProfile();
   if (!profile) redirect("/");
 
-  const questions = shuffled(quiz.questions).map(toClientQuestion);
+  const questions = shuffled(quiz.practiceQuestions ?? quiz.questions).map(
+    toClientQuestion
+  );
 
   return (
     <PracticeRunner

@@ -29,6 +29,9 @@ export type Quiz = {
   sections: string[];
   /** Exam-only quiz: no practice mode, so the bank can't be farmed. */
   noPractice?: boolean;
+  /** Separate bank for practice mode. When present, practice uses these and
+   *  the exam keeps `questions` private. Ids must not collide with `questions`. */
+  practiceQuestions?: Question[];
   questions: Question[];
 };
 

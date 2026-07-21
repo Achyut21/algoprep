@@ -122,7 +122,7 @@ const checkSchema = z.object({
 export async function checkAnswer(input: z.infer<typeof checkSchema>) {
   const { questionId, chosenIndex, answerText } = checkSchema.parse(input);
   const question = quizzes
-    .flatMap((quiz) => quiz.questions)
+    .flatMap((quiz) => [...quiz.questions, ...(quiz.practiceQuestions ?? [])])
     .find((q) => q.id === questionId);
   if (!question) throw new Error(`Unknown question: ${questionId}`);
 
